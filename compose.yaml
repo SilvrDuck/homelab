@@ -1,0 +1,46 @@
+
+services:
+  vikunja:
+    image: vikunja/vikunja
+    environment:
+      VIKUNJA_SERVICE_PUBLICURL: http://casa.thvi.ch
+      VIKUNJA_DATABASE_HOST: db
+      VIKUNJA_DATABASE_PASSWORD: changeme
+      VIKUNJA_DATABASE_TYPE: mysql
+      VIKUNJA_DATABASE_USER: vikunja
+      VIKUNJA_DATABASE_DATABASE: vikunja
+      VIKUNJA_SERVICE_JWTSECRET: <a super secure random secret>
+    volumes:
+      - ./files:/app/vikunja/files
+    networks:
+      - web
+      - default
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.vikunja.rule=Host(`vikunja.example.com`)"
+      - "traefik.http.routers.vikunja.entrypoints=https"
+      - "traefik.http.routers.vikunja.tls.certResolver=acme"
+  db:
+    image: mariadb:10
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: supersupersecret
+      MYSQL_USER: vikunja
+      MYSQL_PASSWORD: changeme
+      MYSQL_DATABASE: vikunja
+    volumes:
+      - ./db:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD"]
+      interval: 2s
+      start_period: 30s
+
+networks:
+  web:
+    external: true
