@@ -1,45 +1,149 @@
+---
 
 services:
+  traefik:
+    image: traefik:v3.1
+    restart: always
+    environment:
+      INFOMANIAK_ACCESS_TOKEN: ${INFOMANIAK_ACCESS_TOKEN}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '8080:8080'
+    volumes:
+      - ./config/traefik:/etc/traefik
+      - ./data/traefik/acme/acme.json:/acme.json
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - web
+
+  homepage:
+    image: nginx:alpine
+    ports:
+      - "4242:443"
+    volumes:
+      - ./platal/homepage/index.html:/usr/share/nginx/html/index.html
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.home.rule=Host(`home.platal.ch`)"
+      - "traefik.http.routers.home.entrypoints=websecure"
+      - "traefik.http.routers.home.tls.certResolver=myresolver"
+
   vikunja:
     image: vikunja/vikunja
+    ports:
+      - 3456:3456
     environment:
-      VIKUNJA_SERVICE_PUBLICURL: http://casa.thvi.ch
-      VIKUNJA_DATABASE_HOST: db
-      VIKUNJA_DATABASE_PASSWORD: changeme
+      VIKUNJA_SERVICE_PUBLICURL: https://vikunja.platal.ch
+      VIKUNJA_DATABASE_HOST: vikunja_db
+      VIKUNJA_DATABASE_PASSWORD: ${VIKUNJA_MYSQL_PASSWORD}
       VIKUNJA_DATABASE_TYPE: mysql
       VIKUNJA_DATABASE_USER: vikunja
       VIKUNJA_DATABASE_DATABASE: vikunja
-      VIKUNJA_SERVICE_JWTSECRET: <a super secure random secret>
+      VIKUNJA_SERVICE_JWTSECRET: ${VIKUNJA_SERVICE_JWTSECRET}
     volumes:
-      - ./files:/app/vikunja/files
+      - ./data/vikunja/files:/app/vikunja/files
     networks:
       - web
       - default
     depends_on:
-      db:
+      vikunja_db:
         condition: service_healthy
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.vikunja.rule=Host(`vikunja.example.com`)"
-      - "traefik.http.routers.vikunja.entrypoints=https"
-      - "traefik.http.routers.vikunja.tls.certResolver=acme"
-  db:
+      - "traefik.http.routers.vikunja.rule=Host(`vikunja.platal.ch`)"
+      - "traefik.http.routers.vikunja.entrypoints=websecure"
+      - "traefik.http.routers.vikunja.tls.certResolver=myresolver"
+
+  vikunja_db:
     image: mariadb:10
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
-      MYSQL_ROOT_PASSWORD: supersupersecret
+      MYSQL_ROOT_PASSWORD: ${VIKUNJA_MYSQL_ROOT_PASSWORD}
       MYSQL_USER: vikunja
-      MYSQL_PASSWORD: changeme
+      MYSQL_PASSWORD: ${VIKUNJA_MYSQL_PASSWORD}
       MYSQL_DATABASE: vikunja
     volumes:
-      - ./db:/var/lib/mysql
+      - ./data/vikunja/db:/var/lib/mysql
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD"]
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD" ]
       interval: 2s
       start_period: 30s
+
+  leantime:
+    image: leantime/leantime:3.2.1
+    ports:
+      - 1212:80
+    restart: unless-stopped
+    environment:
+      - LEAN_DB_HOST=leantime_db
+      - LEAN_DB_USER=leantime
+      - LEAN_DB_PASSWORD=${LEANTIME_DB_PASSWORD}
+      - LEAN_DB_DATABASE=leantime
+      - LEAN_DB_PORT=3306
+      - LEAN_APP_URL=https://leantime.platal.ch
+      - LEAN_DEBUG=1
+      - LEAN_APP_DIR=""
+      - LEAN_PORT=1212
+    networks:
+      - web
+      - default
+    volumes:
+      - ./data/leantime/public_userfiles:/var/www/html/public/userfiles
+      - ./data/leantime/userfiles:/var/www/html/userfiles
+      - ./data/leantime/plugins:/var/www/html/app/Plugins
+    depends_on:
+      - leantime_db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.leantime.rule=Host(`leantime.platal.ch`)"
+      - "traefik.http.routers.leantime.entrypoints=websecure"
+      - "traefik.http.routers.leantime.tls.certResolver=myresolver"
+
+  leantime_db:
+    image: mysql:8.4
+    volumes:
+      - ./data/leantime/mysql:/var/lib/mysql
+    restart: unless-stopped
+    command: --character-set-server=UTF8MB4 --collation-server=UTF8MB4_unicode_ci
+    environment:
+      - MYSQL_ROOT_PASSWORD=${LEANTIME_MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=leantime
+      - MYSQL_USER=leantime
+      - MYSQL_PASSWORD=${LEANTIME_DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD" ]
+      interval: 2s
+      retries: 5
+      start_period: 30s
+
+  openproject:
+    image: openproject/openproject:14
+    environment:
+      - OPENPROJECT_HOST__NAME=openproject.platal.ch
+      - OPENPROJECT_SECRET_KEY_BASE=${OPENPROJECT_SECRET_KEY_BASE}
+      - OPENPROJECT_HTTPS=true
+    ports:
+      - "6969:80"
+    volumes:
+      - ./data/openproject/pgdata:/var/openproject/pgdata
+      - ./data/openproject/assets:/var/openproject/assets
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.openproject.rule=Host(`openproject.platal.ch`)"
+      - "traefik.http.routers.openproject.entrypoints=websecure"
+      - "traefik.http.routers.openproject.tls.certResolver=myresolver"
 
 networks:
   web:
