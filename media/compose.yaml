@@ -1,0 +1,10 @@
+---
+
+services:
+
+  radarr:
+   
+
+networks:
+  web:
+    external: true
