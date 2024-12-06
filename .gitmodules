@@ -1,0 +1,3 @@
+[submodule "salon-des-inventions"]
+	path = salon-des-inventions
+	url = git@github.com:SilvrDuck/salon-des-inventions.git
