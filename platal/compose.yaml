@@ -6,6 +6,7 @@ services:
     image: nginx:alpine
     ports:
       - "${HOMEPAGE_PORT}:443"
+    restart: unless-stopped
     volumes:
       - ./homepage/index.html:/usr/share/nginx/html/index.html
     networks:
@@ -129,7 +130,6 @@ services:
       - "traefik.http.routers.openproject.rule=Host(`openproject.platal.ch`)"
       - "traefik.http.routers.openproject.entrypoints=websecure"
       - "traefik.http.routers.openproject.tls.certResolver=myresolver"
-
 
 networks:
   web:

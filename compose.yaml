@@ -1,7 +1,8 @@
 ---
 
 include:
-  - platal/compose.yaml # declare service-1
+  - platal/compose.yaml
+  # - salon-des-inventions/compose.yaml
 
 services:
   traefik:
