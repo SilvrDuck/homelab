@@ -1,0 +1,14 @@
+services:
+  samba:
+    image: dperson/samba
+    restart: unless-stopped
+    volumes:
+      - /mnt/media:/mount
+    environment:
+      - USERID=1000
+      - GROUPID=1000
+      - USER=tibo;${SMB_PASSWORD}
+    ports:
+      - "139:139"
+      - "445:445"
+    command: [ "-s", "media;/mount;yes;no;no;all;none", "-p" ]
