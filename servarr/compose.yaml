@@ -1,67 +1,18 @@
+# Based on https://blog.kye.dev/proxmox-servarr-stack
+
 networks:
   media-network:
     name: media-network
     driver: bridge
 
-###########################################################################
-##  Docker Compose File:    Gluetun (qmcgaw)
-##  Function:               VPN Client
-##  Documentation:          https://github.com/qdm12/gluetun-wiki
-###########################################################################
 services:
-  gluetun:
-    image: qmcgaw/gluetun:v3.35.0
-    container_name: gluetun
-    restart: always
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    ports:
-      - "8888:8888/tcp" # Gluetun Local Network HTTP proxy
-      - "8388:8388/tcp" # Gluetun Local Network Shadowsocks
-      - "8388:8388/udp" # Gluetun Local Network Shadowsocks
-      - "${WEBUI_PORT_QBITTORRENT:?err}:${WEBUI_PORT_QBITTORRENT:?err}" # WebUI Portal: qBittorrent
-      - "${QBIT_PORT_TCP:?err}:6881/tcp" # Transmission Torrent Port TCP
-      - "${QBIT_PORT_UDP:?err}:6881/udp" # Transmission Torrent Port UDP
-
-    volumes:
-      - ${FOLDER_FOR_CONFIGS:?err}/gluetun:/gluetun
-    environment:
-      - PUID=${PUID:?err}
-      - PGID=${PGID:?err}
-      - TZ=${TIMEZONE:?err}
-      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER:?err}
-      # - OPENVPN_USER=${VPN_USERNAME}
-      # - OPENVPN_PASSWORD=${VPN_PASSWORD}
-      - SERVER_REGIONS=${SERVER_REGIONS:?err}
-      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-      - SERVER_CITIES=${SERVER_CITIES}
-      - SERVER_HOSTNAMES=${SERVER_HOSTNAMES}
-      - FIREWALL_OUTBOUND_SUBNETS=${LOCAL_SUBNET:?err}
-      - OPENVPN_CUSTOM_CONFIG=${OPENVPN_CUSTOM_CONFIG}
-      - VPN_TYPE=${VPN_TYPE}
-      - VPN_ENDPOINT_IP=${VPN_ENDPOINT_IP}
-      - VPN_ENDPOINT_PORT=${VPN_ENDPOINT_PORT}
-      - WIREGUARD_PUBLIC_KEY=${WIREGUARD_PUBLIC_KEY}
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_PRESHARED_KEY=${WIREGUARD_PRESHARED_KEY}
-      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
-      - HTTPPROXY=on
-      - SHADOWSOCKS=on
-
-    # NOTE: Gluetun VPN container MUST ONLY connect to the media-network
-
-    networks:
-      - media-network
-
   ###########################################################################
   ##  Docker Compose File:  qBittorrent (LinuxServer.io)
   ##  Function:             Torrent Download Client
   ##  Documentation:        https://docs.linuxserver.io/images/docker-qbittorrent
   ###########################################################################
   qbittorrent:
-    image: linuxserver/qbittorrent:4.6.0
+    image: linuxserver/qbittorrent:latest
     container_name: qbittorrent
     restart: unless-stopped
     volumes:
@@ -76,13 +27,8 @@ services:
       - UMASK=${UMASK:?err}
       - TZ=${TIMEZONE:?err}
       - WEBUI_PORT=${WEBUI_PORT_QBITTORRENT:?err}
-      # - DOCKER_MODS=ghcr.io/gilbn/theme.park:qbittorrent
-      # - TP_THEME=${TP_THEME:?err}
-
-      ## Do Not Change Network for qBittorrent
-      ## qBittorrent MUST always use a VPN / Secure Internet connection
-
-    network_mode: "service:gluetun"
+      - DOCKER_MODS=ghcr.io/gilbn/theme.park:qbittorrent
+      - TP_THEME=${TP_THEME:?err}
 
   ###########################################################################
   ##  Docker Compose File:  SABnzbd (LinuxServer.io)
@@ -126,8 +72,8 @@ services:
       - PUID=${PUID:?err}
       - PGID=${PGID:?err}
       - TZ=${TIMEZONE:?err}
-      # - DOCKER_MODS=ghcr.io/gilbn/theme.park:bazarr
-      # - TP_THEME=${TP_THEME:?err}
+      - DOCKER_MODS=ghcr.io/gilbn/theme.park:bazarr
+      - TP_THEME=${TP_THEME:?err}
     networks:
       - media-network
 
@@ -142,12 +88,12 @@ services:
     container_name: jellyfin
     restart: unless-stopped
     # Hardware Acceleration
-    devices:
-      - /dev/dri:/dev/dri
-      - /dev/kfd:/dev/kfd
-    group_add:
-      - "106" # Change this to match your "render" host group id and remove this comment
-      - "44" # Change this to match your "video" host group id and remove this comment
+    # devices:
+    #   - /dev/dri:/dev/dri
+    #   - /dev/kfd:/dev/kfd
+    # group_add:
+    #   - "106" # Change this to match your "render" host group id and remove this comment
+    #   - "44" # Change this to match your "video" host group id and remove this comment
     # End Hardware Acceleration
     volumes:
       - ${FOLDER_FOR_CONFIGS:?err}/jellyfin:/config
@@ -162,8 +108,8 @@ services:
       - UMASK=${UMASK:?err}
       - TZ=${TIMEZONE:?err}
       - ROC_ENABLE_PRE_VEGA=1 # Hardware Acceleration
-      - DOCKER_MODS=linuxserver/mods:jellyfin-amd
-    #      - JELLYFIN_PublishedServerUrl=${LOCAL_DOCKER_IP:?err}  # Enable for DLNA - Only works on HOST Network Mode
+    #  - DOCKER_MODS=linuxserver/mods:jellyfin-amd
+    #  - JELLYFIN_PublishedServerUrl=${LOCAL_DOCKER_IP:?err}  # Enable for DLNA - Only works on HOST Network Mode
     networks:
       - media-network
 
