@@ -2,22 +2,6 @@
 
 services:
 
-  suprise:
-    image: nginx:alpine
-    ports:
-      - "6968:443"
-    restart: unless-stopped
-    volumes:
-      - ./suprise/index.html:/usr/share/nginx/html/index.html
-    networks:
-      - web
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
-      - "traefik.http.routers.suprise.rule=Host(`suprise.platal.ch`)"
-      - "traefik.http.routers.suprise.entrypoints=websecure"
-      - "traefik.http.routers.suprise.tls.certResolver=myresolver"
-
   homepage:
     image: nginx:alpine
     ports:
