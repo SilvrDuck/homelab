@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bisou Pandolin</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: pink;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+        }
+
+        .blinking {
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            animation: blink 1s infinite;
+            z-index: 2;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Hearts */
+        .heart {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url('data:image/svg+xml;utf8,<svg width="64" height="64" viewBox="0 0 64 64" fill="%23ffffff" xmlns="http://www.w3.org/2000/svg"><path d="M32 58C32 58 5 37.1818 5 21.0714C5 10.385 13.4706 2 24.5333 2C29.9577 2 35.093 4.575 38.6667 9.48794C42.2403 4.575 47.3757 2 52.8 2C63.8627 2 72.3333 10.385 72.3333 21.0714C72.3333 37.1818 45.3333 58 45.3333 58H32Z" transform="translate(-5 2)"/></svg>') no-repeat center/contain;
+            opacity: 0.8;
+            animation: floatHearts linear infinite;
+        }
+
+        @keyframes floatHearts {
+            0% {
+                transform: translateY(100vh) scale(0.5);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-10vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="blinking">BISOUUUUUUU PETIT PANDOLIN !!!!!!</div>
+
+    <script>
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+
+        setInterval(createHeart, 300);
+    </script>
+
+</body>
+
+</html>
