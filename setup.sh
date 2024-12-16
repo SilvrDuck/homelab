@@ -4,7 +4,7 @@ set -o pipefail
 
 # pre-commit
 pipx install pre-commit
-pre-commit install
+pipx run pre-commit install
 
 # networking
 docker network create web
