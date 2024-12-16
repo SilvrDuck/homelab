@@ -3,7 +3,7 @@ services:
     image: dperson/samba
     restart: unless-stopped
     volumes:
-      - /mnt/media:/mount
+      - ${FOLDER_FOR_MEDIA}:/mount
     environment:
       - USERID=1000
       - GROUPID=1000

@@ -2,9 +2,9 @@
 
 include:
   - platal/compose.yaml
-  - nas/compose.yaml
+  - networking/compose.yaml
   - servarr/compose.yaml
-  # - salon-des-inventions/compose.yaml
+  - salon-des-inventions/compose.yaml
 
 services:
   traefik:
