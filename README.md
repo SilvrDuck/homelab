@@ -1,7 +1,17 @@
 # homelab
 
-This is all the stuff needed for my home setup. It needs a comprehensive .env file to be filled up.
+This is all the stuff needed for my home setup.
 
-## Tailscale
+## Quickstart
 
-Tailscale is not deployed through docker. Instead, check https://tailscale.com/kb/1130/lxc-unprivileged and go bare metal.
+*Assumes ubuntu 22.04*
+
+- install docker https://docs.docker.com/engine/install/ubuntu/
+- Ensure tailscale https://tailscale.com/kb/1130/lxc-unprivileged 
+
+Then:
+
+```
+sudo ./setup.sh
+docker compose up -d
+```
