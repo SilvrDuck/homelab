@@ -7,7 +7,8 @@ services:
     environment:
       - USERID=1000
       - GROUPID=1000
-      - USER=tibo;${SMB_PASSWORD}
+      # USER and PASSWORD set on the host there https://blog.kye.dev/proxmox-zfs-mounts
+      - USER=${SMB_USER};${SMB_PASSWORD}
     ports:
       - "139:139"
       - "445:445"
