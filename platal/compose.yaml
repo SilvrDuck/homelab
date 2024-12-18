@@ -14,7 +14,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.home.rule=Host(`home.platal.ch`)"
+      - "traefik.http.routers.home.rule=Host(`${PUBLIC_URL_HOME}`)"
       - "traefik.http.routers.home.entrypoints=websecure"
       - "traefik.http.routers.home.tls.certResolver=myresolver"
 
@@ -23,7 +23,7 @@ services:
     ports:
       - "${VIKUNJA_PORT}:3456"
     environment:
-      VIKUNJA_SERVICE_PUBLICURL: https://vikunja.platal.ch
+      VIKUNJA_SERVICE_PUBLICURL: https://${PUBLIC_URL_VIKUNJA}
       VIKUNJA_DATABASE_HOST: vikunja_db
       VIKUNJA_DATABASE_PASSWORD: ${VIKUNJA_MYSQL_PASSWORD}
       VIKUNJA_DATABASE_TYPE: mysql
@@ -42,7 +42,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.vikunja.rule=Host(`vikunja.platal.ch`)"
+      - "traefik.http.routers.vikunja.rule=Host(`${PUBLIC_URL_VIKUNJA}`)"
       - "traefik.http.routers.vikunja.entrypoints=websecure"
       - "traefik.http.routers.vikunja.tls.certResolver=myresolver"
 
@@ -73,7 +73,7 @@ services:
       - LEAN_DB_PASSWORD=${LEANTIME_DB_PASSWORD}
       - LEAN_DB_DATABASE=leantime
       - LEAN_DB_PORT=3306
-      - LEAN_APP_URL=https://leantime.platal.ch
+      - LEAN_APP_URL=https://${PUBLIC_URL_LEANTIME}
       - LEAN_DEBUG=1
       - LEAN_APP_DIR=""
       - LEAN_PORT=1212
@@ -89,7 +89,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.leantime.rule=Host(`leantime.platal.ch`)"
+      - "traefik.http.routers.leantime.rule=Host(`${PUBLIC_URL_LEANTIME}`)"
       - "traefik.http.routers.leantime.entrypoints=websecure"
       - "traefik.http.routers.leantime.tls.certResolver=myresolver"
 
@@ -113,7 +113,7 @@ services:
   openproject:
     image: openproject/openproject:14
     environment:
-      - OPENPROJECT_HOST__NAME=openproject.platal.ch
+      - OPENPROJECT_HOST__NAME=${PUBLIC_URL_OPENPROJECT}
       - OPENPROJECT_SECRET_KEY_BASE=${OPENPROJECT_SECRET_KEY_BASE}
       - OPENPROJECT_HTTPS=true
     ports:
@@ -127,7 +127,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.openproject.rule=Host(`openproject.platal.ch`)"
+      - "traefik.http.routers.openproject.rule=Host(`${PUBLIC_URL_OPENPROJECT}`)"
       - "traefik.http.routers.openproject.entrypoints=websecure"
       - "traefik.http.routers.openproject.tls.certResolver=myresolver"
 

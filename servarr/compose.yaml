@@ -111,7 +111,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.thvi.ch`)"
+      - "traefik.http.routers.jellyfin.rule=Host(`${PUBLIC_URL_JELLYFIN}`)"
       - "traefik.http.routers.jellyfin.entrypoints=websecure"
       - "traefik.http.routers.jellyfin.tls.certResolver=myresolver"
 
@@ -139,7 +139,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.thvi.ch`)"
+      - "traefik.http.routers.jellyseerr.rule=Host(`${PUBLIC_URL_JELLYSEERR}`)"
       - "traefik.http.routers.jellyseerr.entrypoints=websecure"
       - "traefik.http.routers.jellyseerr.tls.certResolver=myresolver"
 
@@ -231,7 +231,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.radarr.rule=Host(`radarr.thvi.ch`)"
+      - "traefik.http.routers.radarr.rule=Host(`${PUBLIC_URL_RADARR}`)"
       - "traefik.http.routers.radarr.entrypoints=websecure"
       - "traefik.http.routers.radarr.tls.certResolver=myresolver"
 
@@ -261,7 +261,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.sonarr.rule=Host(`sonarr.thvi.ch`)"
+      - "traefik.http.routers.sonarr.rule=Host(`${PUBLIC_URL_SONARR}`)"
       - "traefik.http.routers.sonarr.entrypoints=websecure"
       - "traefik.http.routers.sonarr.tls.certResolver=myresolver"
 
