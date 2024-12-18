@@ -1,6 +1,10 @@
 # homelab
 
-This is all the stuff needed for my home setup.
+This is most of the stuff needed for my homelab setup.
+
+If you somehow stumbled onto this repo, keep in mind it is only meant for my specific personnal setup and many things might break for you. Feel free to use anything here as a stepping stone for your own setup :)
+
+The general setup is a proxmox machine with this repo running on an ubuntu 22.04 LXC.
 
 ## Quickstart
 
@@ -16,12 +20,19 @@ sudo ./setup.sh
 docker compose up -d
 ```
 
+## Ressources
+
+A bunch of links that were useful to me while setting this all up.
+
+- https://blog.kye.dev/proxmox-series
+- https://trash-guides.info/ (servarr stack best practices and guides)
+
 
 ## Dyndns
 
 Needed manual setting for infomaniak.
 
-On router:
+On ubiquiti USG:
 ```
 configure
 set service dns dynamic interface eth0 service custom host-name 'sub.domain.ch'
