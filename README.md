@@ -4,14 +4,12 @@ This is most of the stuff needed for my homelab setup.
 
 If you somehow stumbled onto this repo, keep in mind it is only meant for my specific personnal setup and many things might break for you. Feel free to use anything here as a stepping stone for your own setup :)
 
-The general setup is a proxmox machine with this repo running on an ubuntu 22.04 LXC.
-
 ## Quickstart
 
-*Assumes ubuntu 22.04*
+*Assumes this runs on ubuntu 22.04 in an LXC on Proxmox*
 
-- install docker https://docs.docker.com/engine/install/ubuntu/
-- Ensure tailscale https://tailscale.com/kb/1130/lxc-unprivileged
+- Install docker https://docs.docker.com/engine/install/ubuntu/
+- Install tailscale https://tailscale.com/kb/1130/lxc-unprivileged
 
 Then:
 
