@@ -1,0 +1,27 @@
+title: "Daisy"
+instanceName: homelab
+showStats: true
+fiveColumns: true
+useEqualHeights: true
+headerStyle: boxedWidgets
+hideVersion: false
+language: en
+layout:
+  Media:
+    style: columns
+  Infra:
+    style: columns
+  Downloaders:
+    style: columns
+  Platal:
+    style: columns
+  Trackers:
+    style: columns
+  Automation:
+    style: columns
+
+background:
+  image: /images/background.png
+  blur: md
+  brightness: 75
+  opacity: 60

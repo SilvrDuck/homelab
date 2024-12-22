@@ -2,10 +2,10 @@
 
 services:
 
-  homepage:
+  platalhomepage:
     image: nginx:alpine
     ports:
-      - "${HOMEPAGE_PORT}:443"
+      - "${PLATAL_HOMEPAGE_PORT}:443"
     restart: unless-stopped
     volumes:
       - ./homepage/index.html:/usr/share/nginx/html/index.html
@@ -14,9 +14,31 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.home.rule=Host(`${PUBLIC_URL_HOME}`)"
-      - "traefik.http.routers.home.entrypoints=websecure"
-      - "traefik.http.routers.home.tls.certResolver=myresolver"
+      - "traefik.http.routers.platalhomepage.rule=Host(`${PUBLIC_URL_PLATAL_HOMEPAGE}`)"
+      - "traefik.http.routers.platalhomepage.entrypoints=websecure"
+      - "traefik.http.routers.platalhomepage.tls.certresolver=myresolver"
+      - "homepage.group=Platal"
+      - "homepage.name=platal.ch"
+      - "homepage.icon=mdi-home"
+      - "homepage.href=https://${PUBLIC_URL_PLATAL_HOMEPAGE}"
+      - "homepage.description=Main homelab dashboard"
+
+  bisou:
+    image: nginx:alpine
+    ports:
+      - "16969:443"
+    restart: unless-stopped
+    volumes:
+      - ./bisou/index.html:/usr/share/nginx/html/index.html
+      - ./bisou/message.mp3:/usr/share/nginx/html/message.mp3
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.bisou.rule=Host(`bisou.thvi.ch`)"
+      - "traefik.http.routers.bisou.entrypoints=websecure"
+      - "traefik.http.routers.bisou.tls.certResolver=myresolver"
 
   vikunja:
     image: vikunja/vikunja
@@ -45,6 +67,15 @@ services:
       - "traefik.http.routers.vikunja.rule=Host(`${PUBLIC_URL_VIKUNJA}`)"
       - "traefik.http.routers.vikunja.entrypoints=websecure"
       - "traefik.http.routers.vikunja.tls.certResolver=myresolver"
+      - "homepage.group=Platal"
+      - "homepage.name=Vikunja"
+      - "homepage.icon=mdi-check"
+      - "homepage.href=https://${PUBLIC_URL_VIKUNJA}"
+      - "homepage.description=Task manager"
+      - "homepage.widget.type=vikunja"
+      - "homepage.widget.url=https://${PUBLIC_URL_VIKUNJA}"
+      - "homepage.widget.key=${VIKUNJA_API_KEY}"
+      - "homepage.widget.enableTaskList=true"
 
   vikunja_db:
     image: mariadb:10
@@ -61,75 +92,84 @@ services:
       test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD" ]
       interval: 2s
       start_period: 30s
+  # leantime:
+  #   image: leantime/leantime:3.2.1
+  #   ports:
+  #     - "${LEANTIME_PORT}:80"
+  #   restart: unless-stopped
+  #   environment:
+  #     - LEAN_DB_HOST=leantime_db
+  #     - LEAN_DB_USER=leantime
+  #     - LEAN_DB_PASSWORD=${LEANTIME_DB_PASSWORD}
+  #     - LEAN_DB_DATABASE=leantime
+  #     - LEAN_DB_PORT=3306
+  #     - LEAN_APP_URL=https://${PUBLIC_URL_LEANTIME}
+  #     - LEAN_DEBUG=1
+  #     - LEAN_APP_DIR=""
+  #     - LEAN_PORT=1212
+  #   networks:
+  #     - web
+  #     - default
+  #   volumes:
+  #     - ../data/leantime/public_userfiles:/var/www/html/public/userfiles
+  #     - ../data/leantime/userfiles:/var/www/html/userfiles
+  #     - ../data/leantime/plugins:/var/www/html/app/Plugins
+  #   depends_on:
+  #     - leantime_db
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.docker.network=web"
+  #     - "traefik.http.routers.leantime.rule=Host(`${PUBLIC_URL_LEANTIME}`) || Host(`leantime.lan`)"
+  #     - "traefik.http.routers.leantime.entrypoints=websecure"
+  #     - "traefik.http.routers.leantime.tls.certResolver=myresolver"
+  #     - "homepage.group=Platal"
+  #     - "homepage.name=Leantime"
+  #     - "homepage.icon=mdi-calendar"
+  #     - "homepage.href=https://${PUBLIC_URL_LEANTIME}"
+  #     - "homepage.description=Project management"
 
-  leantime:
-    image: leantime/leantime:3.2.1
-    ports:
-      - "${LEANTIME_PORT}:80"
-    restart: unless-stopped
-    environment:
-      - LEAN_DB_HOST=leantime_db
-      - LEAN_DB_USER=leantime
-      - LEAN_DB_PASSWORD=${LEANTIME_DB_PASSWORD}
-      - LEAN_DB_DATABASE=leantime
-      - LEAN_DB_PORT=3306
-      - LEAN_APP_URL=https://${PUBLIC_URL_LEANTIME}
-      - LEAN_DEBUG=1
-      - LEAN_APP_DIR=""
-      - LEAN_PORT=1212
-    networks:
-      - web
-      - default
-    volumes:
-      - ../data/leantime/public_userfiles:/var/www/html/public/userfiles
-      - ../data/leantime/userfiles:/var/www/html/userfiles
-      - ../data/leantime/plugins:/var/www/html/app/Plugins
-    depends_on:
-      - leantime_db
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
-      - "traefik.http.routers.leantime.rule=Host(`${PUBLIC_URL_LEANTIME}`)"
-      - "traefik.http.routers.leantime.entrypoints=websecure"
-      - "traefik.http.routers.leantime.tls.certResolver=myresolver"
+  # leantime_db:
+  #   image: mysql:8.4
+  #   volumes:
+  #     - ../data/leantime/mysql:/var/lib/mysql
+  #   restart: unless-stopped
+  #   command: --character-set-server=UTF8MB4 --collation-server=UTF8MB4_unicode_ci
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=${LEANTIME_MYSQL_ROOT_PASSWORD}
+  #     - MYSQL_DATABASE=leantime
+  #     - MYSQL_USER=leantime
+  #     - MYSQL_PASSWORD=${LEANTIME_DB_PASSWORD}
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD" ]
+  #     interval: 2s
+  #     retries: 5
+  #     start_period: 30s
 
-  leantime_db:
-    image: mysql:8.4
-    volumes:
-      - ../data/leantime/mysql:/var/lib/mysql
-    restart: unless-stopped
-    command: --character-set-server=UTF8MB4 --collation-server=UTF8MB4_unicode_ci
-    environment:
-      - MYSQL_ROOT_PASSWORD=${LEANTIME_MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=leantime
-      - MYSQL_USER=leantime
-      - MYSQL_PASSWORD=${LEANTIME_DB_PASSWORD}
-    healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD" ]
-      interval: 2s
-      retries: 5
-      start_period: 30s
-
-  openproject:
-    image: openproject/openproject:14
-    environment:
-      - OPENPROJECT_HOST__NAME=${PUBLIC_URL_OPENPROJECT}
-      - OPENPROJECT_SECRET_KEY_BASE=${OPENPROJECT_SECRET_KEY_BASE}
-      - OPENPROJECT_HTTPS=true
-    ports:
-      - "${OPENPROJECT_PORT}:80"
-    restart: unless-stopped
-    volumes:
-      - ../data/openproject/pgdata:/var/openproject/pgdata
-      - ../data/openproject/assets:/var/openproject/assets
-    networks:
-      - web
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
-      - "traefik.http.routers.openproject.rule=Host(`${PUBLIC_URL_OPENPROJECT}`)"
-      - "traefik.http.routers.openproject.entrypoints=websecure"
-      - "traefik.http.routers.openproject.tls.certResolver=myresolver"
+  # openproject:
+  #   image: openproject/openproject:14
+  #   environment:
+  #     - OPENPROJECT_HOST__NAME=${PUBLIC_URL_OPENPROJECT}
+  #     - OPENPROJECT_SECRET_KEY_BASE=${OPENPROJECT_SECRET_KEY_BASE}
+  #     - OPENPROJECT_HTTPS=true
+  #   ports:
+  #     - "${OPENPROJECT_PORT}:80"
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ../data/openproject/pgdata:/var/openproject/pgdata
+  #     - ../data/openproject/assets:/var/openproject/assets
+  #   networks:
+  #     - web
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.docker.network=web"
+  #     - "traefik.http.routers.openproject.rule=Host(`${PUBLIC_URL_OPENPROJECT}`) || Host(`openproject.lan`)"
+  #     - "traefik.http.routers.openproject.entrypoints=websecure"
+  #     - "traefik.http.routers.openproject.tls.certResolver=myresolver"
+  #     - "homepage.group=Platal"
+  #     - "homepage.name=OpenProject"
+  #     - "homepage.icon=mdi-calendar"
+  #     - - "homepage.href=https://${PUBLIC_URL_OPENPROJECT}"
+  #     - "homepage.description=Project management"
 
 networks:
   web:

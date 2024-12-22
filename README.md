@@ -25,6 +25,21 @@ A bunch of links that were useful to me while setting this all up.
 - https://blog.kye.dev/proxmox-series
 - https://trash-guides.info/ (servarr stack best practices and guides)
 
+## Local static routes
+
+
+On ubiquiti USG:
+```
+configure
+set system static-host-mapping host-name service_name.lan inet 192.168.1.31
+commit ; save ; exit
+```
+
+You can generate set statements for all the services in the repo with:
+```
+python3 scripts/generate_usg_mappings.py
+```
+
 
 ## Dyndns
 

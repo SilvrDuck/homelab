@@ -1,0 +1,34 @@
+---
+
+- Infra:
+    - Proxmox:
+        icon: proxmox.png
+        href:
+        type: Proxmox
+        description: Proxmox Virtual Environment
+        widget:
+            type: proxmox
+            url:
+            username: # https://gethomepage.dev/widgets/services/proxmox/
+            password:
+            node:
+
+    - Unifi:
+        icon: unifi.png
+        href:
+        type: Unifi
+        description: Ubiquiti control panel
+        widget:
+            type: unifi
+            url:
+            username:
+            password:
+
+    - Tailscale:
+        icon: tailscale.png
+        href: https://login.tailscale.com/admin/machines
+        type: Tailscale
+        widget:
+            type: tailscale
+            deviceid:
+            key:

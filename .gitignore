@@ -1,2 +1,7 @@
 /data
 .env
+infra/homepage/config/*
+!infra/homepage/config/settings.yaml
+!infra/homepage/config/docker.yaml
+!infra/homepage/config/services.yaml.dist
+!infra/homepage/config/bookmarks.yaml
