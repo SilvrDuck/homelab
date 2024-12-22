@@ -2,7 +2,7 @@
 
 include:
   - platal/compose.yaml
-  - networking/compose.yaml
+  - infra/compose.yaml
   - servarr/compose.yaml
   - salon-des-inventions/compose.yaml
 

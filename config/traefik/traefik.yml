@@ -24,11 +24,12 @@ global:
 entryPoints:
   web:
     address: :80
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
+    # Redirect is handled by ./dynamic/dynamic.yml
+    # http:
+    #   redirections:
+    #     entryPoint:
+    #       to: websecure
+    #       scheme: https
 
   websecure:
     address: :443
@@ -41,6 +42,8 @@ entryPoints:
 providers:
   # Enable Docker configuration backend
   docker: {}
+  file:
+    directory: "/etc/traefik/dynamic"
     # Docker server endpoint. Can be a tcp or a unix socket endpoint.
     #
     # Required
@@ -146,20 +149,20 @@ log:
 #
 # Optional
 #
-#api:
+api:
   # Enable the API in insecure mode
   #
   # Optional
   # Default: false
   #
-#  insecure: true
+  insecure: false
 
   # Enabled Dashboard
   #
   # Optional
   # Default: true
   #
-#  dashboard: false
+  dashboard: false
 
 ################################################################
 # Ping configuration

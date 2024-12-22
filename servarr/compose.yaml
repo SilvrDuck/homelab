@@ -4,7 +4,7 @@
 
 services:
   ###########################################################################
-  ##  Docker Compose File:  qBittorrent (LinuxServer.io)
+  ##  Docker Compose File:S  qBittorrent (LinuxServer.io)
   ##  Function:             Torrent Download Client
   ##  Documentation:        https://docs.linuxserver.io/images/docker-qbittorrent
   ###########################################################################
@@ -20,6 +20,9 @@ services:
     # depends_on:
     #   gluetun:
     #     condition: service_healthy
+    networks:
+      - web
+      - default
     environment:
       - PUID=${PUID:?err}
       - PGID=${PGID:?err}
@@ -28,6 +31,22 @@ services:
       - WEBUI_PORT=${WEBUI_PORT_QBITTORRENT:?err}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:qbittorrent
       - TP_THEME=${TP_THEME:?err}
+    labels:
+      - "homepage.group=Downloaders"
+      - "homepage.name=qBittorrent"
+      - "homepage.icon=qbittorrent.png"
+      - "homepage.href=http://qbittorrent.lan"
+      - "homepage.description=Torrent client"
+      - "homepage.widget.type=qbittorrent"
+      - "homepage.widget.url=http://qbittorrent.lan"
+      - "homepage.widget.username=${QBITTORRENT_USER}"
+      - "homepage.widget.password=${QBITTORRENT_PASS}"
+      - "homepage.widget.enableLeechProgress=true"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.qbittorrent-lan.rule=Host(`qbittorrent.lan`)"
+      - "traefik.http.routers.qbittorrent-lan.entrypoints=web"
+      - "traefik.http.services.qbittorrent-lan.loadbalancer.server.port=${WEBUI_PORT_QBITTORRENT}"
 
   ###########################################################################
   ##  Docker Compose File:  SABnzbd (LinuxServer.io)
@@ -44,12 +63,29 @@ services:
 
     ports:
       - "${WEBUI_PORT_SABNZBD:?err}:8080"
+    networks:
+      - web
+      - default
     environment:
       - PUID=${PUID:?err}
       - PGID=${PGID:?err}
       - TZ=${TIMEZONE:?err}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:sabnzbd
       - TP_THEME=${TP_THEME:?err}
+    labels:
+      - "homepage.group=Downloaders"
+      - "homepage.name=SABnzbd"
+      - "homepage.icon=sabnzbd.png"
+      - "homepage.href=http://sabnzbd.lan"
+      - "homepage.description=Usenet downloader"
+      # - "homepage.widget.type=sabnzbd"
+      # - "homepage.widget.url=http://sabnzbd.lan"
+      # - "homepage.widget.key=${SABNZBD_API_KEY}"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.sabnzbd-lan.rule=Host(`sabnzbd.lan`)"
+      - "traefik.http.routers.sabnzbd-lan.entrypoints=web"
+      - "traefik.http.services.sabnzbd-lan.loadbalancer.server.port=8080"
 
   ###########################################################################
   ##  Docker Compose File:  Bazarr (LinuxServer.io)
@@ -71,6 +107,22 @@ services:
       - TZ=${TIMEZONE:?err}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:bazarr
       - TP_THEME=${TP_THEME:?err}
+    networks:
+      - web
+      - default
+    labels:
+      - "homepage.group=Automation"
+      - "homepage.name=Bazarr"
+      - "homepage.icon=bazarr.png"
+      - "homepage.href=http://bazarr.lan"
+      - "homepage.description=Subtitle manager"
+      - "homepage.widget.type=bazarr"
+      - "homepage.widget.url=http://bazarr.lan"
+      - "homepage.widget.key=${BAZARR_API_KEY}"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.bazarr-lan.rule=Host(`bazarr.lan`)"
+      - "traefik.http.routers.bazarr-lan.entrypoints=web"
+      - "traefik.http.services.bazarr-lan.loadbalancer.server.port=6767"
 
   ###########################################################################
   ##  Docker Compose File:  Jellyfin (LinuxServer.io)
@@ -111,9 +163,26 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.jellyfin.rule=Host(`${PUBLIC_URL_JELLYFIN}`)"
-      - "traefik.http.routers.jellyfin.entrypoints=websecure"
-      - "traefik.http.routers.jellyfin.tls.certResolver=myresolver"
+      - "traefik.http.routers.jellyfin-lan.rule=Host(`jellyfin.lan`)"
+      - "traefik.http.routers.jellyfin-lan.entrypoints=web"
+      - "traefik.http.routers.jellyfin-public.rule=Host(`${PUBLIC_URL_JELLYFIN}`)"
+      - "traefik.http.routers.jellyfin-public.entrypoints=websecure"
+      - "traefik.http.routers.jellyfin-public.tls.certresolver=myresolver"
+      - "traefik.http.routers.jellyfin-public.service=jellyfin-lan"
+      - "traefik.http.services.jellyfin-lan.loadbalancer.server.port=8096"
+      - "homepage.group=Media"
+      - "homepage.name=Jellyfin"
+      - "homepage.icon=jellyfin.png"
+      - "homepage.href=https://${PUBLIC_URL_JELLYFIN}"
+      - "homepage.description=Media server"
+      - "homepage.widget.type=jellyfin"
+      - "homepage.widget.url=https://${PUBLIC_URL_JELLYFIN}"
+      - "homepage.widget.key=${JELLYFIN_API_KEY}"
+      - "homepage.widget.enableBlocks=true"
+      - "homepage.widget.enableNowPlaying=true"
+      - "homepage.widget.enableUser=true"
+      - "homepage.widget.showEpisodeNumber=true"
+      - "homepage.widget.expandOneStreamToTwoRows=true"
 
   ###########################################################################
   ##  Docker Compose File:  Jellyseerr (fallenbagel)
@@ -139,9 +208,21 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.jellyseerr.rule=Host(`${PUBLIC_URL_JELLYSEERR}`)"
-      - "traefik.http.routers.jellyseerr.entrypoints=websecure"
-      - "traefik.http.routers.jellyseerr.tls.certResolver=myresolver"
+      - "traefik.http.routers.jellyseerr-lan.rule=Host(`jellyseerr.lan`)"
+      - "traefik.http.routers.jellyseerr-lan.entrypoints=web"
+      - "traefik.http.routers.jellyseerr-public.rule=Host(`${PUBLIC_URL_JELLYSEERR}`)"
+      - "traefik.http.routers.jellyseerr-public.entrypoints=websecure"
+      - "traefik.http.routers.jellyseerr-public.tls.certresolver=myresolver"
+      - "traefik.http.routers.jellyseerr-public.service=jellyseerr-lan"
+      - "traefik.http.services.jellyseerr-lan.loadbalancer.server.port=5055"
+      - "homepage.group=Media"
+      - "homepage.name=Jellyseerr"
+      - "homepage.icon=jellyseerr.png"
+      - "homepage.href=https://${PUBLIC_URL_JELLYSEERR}"
+      - "homepage.description=Request manager"
+      - "homepage.widget.type=jellyseerr"
+      - "homepage.widget.url=https://${PUBLIC_URL_JELLYSEERR}"
+      - "homepage.widget.key=${JELLYSEERR_API_KEY}"
 
   ###########################################################################
   ##  Docker Compose File:  Lidarr (LinuxServer.io)
@@ -163,6 +244,22 @@ services:
       - TZ=${TIMEZONE:?err}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:lidarr
       - TP_THEME=${TP_THEME:?err}
+    networks:
+      - web
+      - default
+    labels:
+      - "homepage.group=Trackers"
+      - "homepage.name=Lidarr"
+      - "homepage.icon=lidarr.png"
+      - "homepage.href=http://lidarr.lan"
+      - "homepage.description=Music manager"
+      - "homepage.widget.type=lidarr"
+      - "homepage.widget.url=http://lidarr.lan"
+      - "homepage.widget.key=${LIDARR_API_KEY}"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.lidarr-lan.rule=Host(`lidarr.lan`)"
+      - "traefik.http.routers.lidarr-lan.entrypoints=web"
+      - "traefik.http.services.lidarr-lan.loadbalancer.server.port=8686"
 
   ###########################################################################
   ##  Docker Compose File:  Readarr (LinuxServer.io)
@@ -184,6 +281,22 @@ services:
       - TZ=${TIMEZONE:?err}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:readarr
       - TP_THEME=${TP_THEME:?err}
+    networks:
+      - web
+      - default
+    labels:
+      - "homepage.group=Trackers"
+      - "homepage.name=Readarr"
+      - "homepage.icon=readarr.png"
+      - "homepage.href=http://readarr.lan"
+      - "homepage.description=Audiobook manager"
+      - "homepage.widget.type=readarr"
+      - "homepage.widget.url=http://readarr.lan"
+      - "homepage.widget.key=${READARR_API_KEY}"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.readarr-lan.rule=Host(`readarr.lan`)"
+      - "traefik.http.routers.readarr-lan.entrypoints=web"
+      - "traefik.http.services.readarr-lan.loadbalancer.server.port=8787"
 
   ###########################################################################
   ##  Docker Compose File:  Prowlarr (LinuxServer.io)
@@ -198,12 +311,28 @@ services:
       - ${FOLDER_FOR_CONFIGS:?err}/prowlarr:/config
     ports:
       - "${WEBUI_PORT_PROWLARR:?err}:9696"
+    networks:
+      - web
     environment:
       - PUID=${PUID:?err}
       - PGID=${PGID:?err}
       - TZ=${TIMEZONE:?err}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:prowlarr
       - TP_THEME=${TP_THEME:?err}
+    labels:
+      - "homepage.group=Automation"
+      - "homepage.name=Prowlarr"
+      - "homepage.icon=prowlarr.png"
+      - "homepage.href=http://prowlarr.lan"
+      - "homepage.description=Indexer aggregator"
+      - "homepage.widget.type=prowlarr"
+      - "homepage.widget.url=http://prowlarr.lan"
+      - "homepage.widget.key=${PROWLARR_API_KEY}"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.prowlarr-lan.rule=Host(`prowlarr.lan`)"
+      - "traefik.http.routers.prowlarr-lan.entrypoints=web"
+      - "traefik.http.services.prowlarr-lan.loadbalancer.server.port=9696"
 
   ###########################################################################
   ##  Docker Compose File:  Radarr (LinuxServer.io)
@@ -231,9 +360,22 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.radarr.rule=Host(`${PUBLIC_URL_RADARR}`)"
-      - "traefik.http.routers.radarr.entrypoints=websecure"
-      - "traefik.http.routers.radarr.tls.certResolver=myresolver"
+      - "traefik.http.routers.radarr-lan.rule=Host(`radarr.lan`)"
+      - "traefik.http.routers.radarr-lan.entrypoints=web"
+      - "traefik.http.routers.radarr-public.rule=Host(`${PUBLIC_URL_RADARR}`)"
+      - "traefik.http.routers.radarr-public.entrypoints=websecure"
+      - "traefik.http.routers.radarr-public.tls.certresolver=myresolver"
+      - "traefik.http.routers.radarr-public.service=radarr-lan"
+      - "traefik.http.services.radarr-lan.loadbalancer.server.port=7878"
+      - "homepage.group=Trackers"
+      - "homepage.name=Radarr"
+      - "homepage.icon=radarr.png"
+      - "homepage.href=https://${PUBLIC_URL_RADARR}"
+      - "homepage.description=Movie manager"
+      - "homepage.widget.type=radarr"
+      - "homepage.widget.url=http://radarr.lan"
+      - "homepage.widget.key=${RADARR_API_KEY}"
+      - "homepage.widget.enableQueue=true"
 
   ###########################################################################
   ##  Docker Compose File:  Sonarr (LinuxServer.io)
@@ -261,9 +403,22 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.sonarr.rule=Host(`${PUBLIC_URL_SONARR}`)"
-      - "traefik.http.routers.sonarr.entrypoints=websecure"
-      - "traefik.http.routers.sonarr.tls.certResolver=myresolver"
+      - "traefik.http.routers.sonarr-lan.rule=Host(`sonarr.lan`)"
+      - "traefik.http.routers.sonarr-lan.entrypoints=web"
+      - "traefik.http.routers.sonarr-public.rule=Host(`${PUBLIC_URL_SONARR}`)"
+      - "traefik.http.routers.sonarr-public.entrypoints=websecure"
+      - "traefik.http.routers.sonarr-public.tls.certresolver=myresolver"
+      - "traefik.http.routers.sonarr-public.service=sonarr-lan"
+      - "traefik.http.services.sonarr-lan.loadbalancer.server.port=8989"
+      - "homepage.group=Trackers"
+      - "homepage.name=Sonarr"
+      - "homepage.icon=sonarr.png"
+      - "homepage.href=https://${PUBLIC_URL_SONARR}"
+      - "homepage.description=TV manager"
+      - "homepage.widget.type=sonarr"
+      - "homepage.widget.url=https://${PUBLIC_URL_SONARR}"
+      - "homepage.widget.key=${SONARR_API_KEY}"
+      - "homepage.widget.enableQueue=true"
 
   ###########################################################################
   ##  Docker Compose File:  Flaresolverr (Flaresolverr)
@@ -281,6 +436,19 @@ services:
       - LOG_HTML=false
       - CAPTCHA_SOLVER=none
       - TZ=${TIMEZONE:?err}
+    networks:
+      - web
+      - default
+    labels:
+      - "homepage.group=Automation"
+      - "homepage.name=Flaresolverr"
+      - "homepage.icon=flare.png"
+      - "homepage.href=http://flaresolverr.lan"
+      - "homepage.description=Cloudflare proxy server"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.flaresolverr-lan.rule=Host(`flaresolverr.lan`)"
+      - "traefik.http.routers.flaresolverr-lan.entrypoints=web"
+      - "traefik.http.services.flaresolverr-lan.loadbalancer.server.port=8191"
 
   ###########################################################################
   ##  Docker Compose File:  Unpackerr (Hotio.Dev)
@@ -341,3 +509,9 @@ services:
     security_opt:
       - no-new-privileges:true
     network_mode: none
+    labels:
+      - "homepage.group=Automation"
+      - "homepage.name=Unpackerr"
+      - "homepage.icon=unpackerr.png"
+      - "homepage.description=Archive media extraction"
+      - "traefik.enable=false"

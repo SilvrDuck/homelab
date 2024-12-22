@@ -1,0 +1,37 @@
+# This file allows us to redirect http traffic to https only
+# on external calls, and not on *.lan
+
+http:
+  routers:
+    # 1) Catch all HTTP on *.ch and redirect to HTTPS
+    global-redirect-ch:
+      rule: "HostRegexp(`^(.+\\.)?ch$`)"
+      entryPoints:
+        - "web"   # :80
+      middlewares:
+        - "redirect-to-https"
+      service: "noop-service"
+      priority: 1  # Ensure it has a decent priority
+
+    # 2) Catch all HTTPS on *.ch
+    global-thvi-ch-secure:
+      rule: "HostRegexp(`^(.+\\.)?ch$`)"
+      entryPoints:
+        - "websecure"  # :443
+      tls:
+        certResolver: "myresolver"
+      service: "noop-service"
+      priority: 1
+
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: "https"
+
+  services:
+    # A "dummy" or "noop" service for the global routers.
+    # We usually override this with container-level routers that have higher priority.
+    noop-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:65535"
