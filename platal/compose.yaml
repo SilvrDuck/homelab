@@ -23,23 +23,6 @@ services:
       - "homepage.href=https://${PUBLIC_URL_PLATAL_HOMEPAGE}"
       - "homepage.description=Main homelab dashboard"
 
-  bisou:
-    image: nginx:alpine
-    ports:
-      - "16969:443"
-    restart: unless-stopped
-    volumes:
-      - ./bisou/index.html:/usr/share/nginx/html/index.html
-      - ./bisou/message.mp3:/usr/share/nginx/html/message.mp3
-    networks:
-      - web
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
-      - "traefik.http.routers.bisou.rule=Host(`bisou.thvi.ch`)"
-      - "traefik.http.routers.bisou.entrypoints=websecure"
-      - "traefik.http.routers.bisou.tls.certResolver=myresolver"
-
   vikunja:
     image: vikunja/vikunja
     ports:

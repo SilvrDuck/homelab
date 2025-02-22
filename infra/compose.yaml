@@ -45,3 +45,31 @@ services:
       - "traefik.http.routers.homepage-lan.rule=Host(`homepage.lan`)"
       - "traefik.http.routers.homepage-lan.entrypoints=web"
       - "traefik.http.services.homepage-lan.loadbalancer.server.port=3000"
+
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    hostname: pihole
+    restart: unless-stopped
+    networks:
+      default:
+    environment:
+      TZ: "Europe/Zurich"
+      WEBPASSWORD: ${PIHOLE_PASSWORD}
+      DNS1: "1.1.1.1"
+      DNS2: "8.8.8.8"
+      PIHOLE_DNS_: "1.1.1.1;8.8.8.8"
+    volumes:
+      - ./pihole/etc-pihole:/etc/pihole
+      - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp" # Required for DHCP if using Pi-hole as DHCP server
+      - "${PIHOLE_PORT}:80" # Access Pi-hole web interface via `http://<HOMELAB_IP>:8080/admin`
+    labels:
+      - "homepage.group=Infra"
+      - "homepage.name=Pi-hole"
+      - "homepage.icon=mdi-shield"
+      - "homepage.href=http://${HOMELAB_IP}:${PIHOLE_PORT}/admin"
+      - "homepage.description=Ad-blocking DNS server"
