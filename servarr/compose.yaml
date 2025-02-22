@@ -2,6 +2,7 @@
 
 # Based on https://blog.kye.dev/proxmox-servarr-stack
 
+
 services:
   ###########################################################################
   ##  Docker Compose File:S  qBittorrent (LinuxServer.io)
@@ -47,6 +48,34 @@ services:
       - "traefik.http.routers.qbittorrent-lan.rule=Host(`qbittorrent.lan`)"
       - "traefik.http.routers.qbittorrent-lan.entrypoints=web"
       - "traefik.http.services.qbittorrent-lan.loadbalancer.server.port=${WEBUI_PORT_QBITTORRENT}"
+      # - "traefik.http.routers.qbittorrent-public.rule=Host(`${PUBLIC_URL_QBITTORRENT}`)"
+      # - "traefik.http.routers.qbittorrent-public.entrypoints=websecure"
+      # - "traefik.http.routers.qbittorrent-public.tls.certresolver=myresolver"
+      # - "traefik.http.routers.qbittorrent-public.service=qbittorrent-lan"
+
+      ###########################################################################
+      ##  Docker Compose File:  qBittorrent Manage (stuffnthings)
+      ##  Function:             qBittorrent Automation, esp. deleting torrents after
+      ##                        being removed from Sonarr/Radarr
+      ##  Documentation:        https://github.com/StuffAnThings/qbit_manage/wiki
+      ###########################################################################
+  qbit_manage:
+    container_name: qbit_manage
+    image: ghcr.io/stuffanthings/qbit_manage:latest
+    networks:
+      - web
+    volumes:
+      - ./config/qbit_manage/:/config:rw
+      - ${FOLDER_FOR_MEDIA:?err}:/data:rw
+      - ${FOLDER_FOR_CONFIGS:?err}/qbittorrent/:/qbittorrent/:ro
+    environment:
+      - QBT_DRY_RUN=true
+      - QBT_RUN=360 # minutes
+      - QBT_REM_ORPHANED=true
+      - QBT_TAG_NOHARDLINKS=true
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=false"
 
   ###########################################################################
   ##  Docker Compose File:  SABnzbd (LinuxServer.io)

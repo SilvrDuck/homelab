@@ -6,3 +6,5 @@ infra/homepage/config/*
 !infra/homepage/config/services.yaml.dist
 !infra/homepage/config/bookmarks.yaml
 !infra/homepage/config/widgets.yaml
+
+servarr/config/qbit_manage/logs
