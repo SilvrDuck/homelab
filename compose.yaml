@@ -5,6 +5,7 @@ include:
   - infra/compose.yaml
   - servarr/compose.yaml
   - salon-des-inventions/compose.yaml
+  - apps/compose.yaml
 
 services:
   traefik:
