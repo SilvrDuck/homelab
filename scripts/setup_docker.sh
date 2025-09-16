@@ -12,3 +12,15 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Configure Docker DNS to prevent host-level DNS issues
+echo "Configuring Docker daemon DNS..."
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json > /dev/null <<EOF
+{
+  "dns": ["1.1.1.1", "8.8.8.8"]
+}
+EOF
+
+# Restart Docker to apply the new DNS configuration
+sudo systemctl restart docker
