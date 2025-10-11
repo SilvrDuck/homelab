@@ -8,3 +8,5 @@ infra/homepage/config/*
 !infra/homepage/config/widgets.yaml
 
 servarr/config/qbit_manage/logs
+
+infra/upsnap/data
