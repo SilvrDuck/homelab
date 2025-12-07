@@ -70,15 +70,25 @@ cat >/etc/docker/daemon.json <<'EOF'
 }
 EOF
 
-echo "[setup_docker] Restarting containerd and docker"
+echo "[setup_docker] Configuring Docker API version compatibility for Traefik"
 
-# 9. Restart services to apply everything
+# 9. Set minimum Docker API version to support Traefik (fixes "client version 1.24 is too old" error)
+mkdir -p /etc/systemd/system/docker.service.d
+cat >/etc/systemd/system/docker.service.d/override.conf <<'EOF'
+[Service]
+Environment="DOCKER_MIN_API_VERSION=1.24"
+EOF
+
+echo "[setup_docker] Reloading systemd and restarting Docker"
+
+# 10. Restart services to apply everything
+systemctl daemon-reload
 systemctl restart containerd
 systemctl restart docker
 
 echo "[setup_docker] Creating .env file if needed"
 
-# 10. Create .env from template if it doesn't exist
+# 11. Create .env from template if it doesn't exist
 cd "$(dirname "$0")/.." || exit 1
 if [[ ! -f .env ]]; then
   if [[ -f .env.dist ]]; then
