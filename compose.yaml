@@ -10,7 +10,7 @@ include:
 
 services:
   traefik:
-    image: traefik:v3.1
+    image: traefik:3.2
     restart: always
     environment:
       INFOMANIAK_ACCESS_TOKEN: ${INFOMANIAK_ACCESS_TOKEN}
