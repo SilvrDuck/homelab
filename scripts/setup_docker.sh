@@ -76,4 +76,19 @@ echo "[setup_docker] Restarting containerd and docker"
 systemctl restart containerd
 systemctl restart docker
 
+echo "[setup_docker] Creating .env file if needed"
+
+# 10. Create .env from template if it doesn't exist
+cd "$(dirname "$0")/.." || exit 1
+if [[ ! -f .env ]]; then
+  if [[ -f .env.dist ]]; then
+    cp .env.dist .env
+    echo "[setup_docker] Created .env from .env.dist - please fill it up with your configuration"
+  else
+    echo "[setup_docker] Warning: .env.dist not found, skipping .env creation"
+  fi
+else
+  echo "[setup_docker] .env already exists, skipping"
+fi
+
 echo "[setup_docker] Docker setup complete"
