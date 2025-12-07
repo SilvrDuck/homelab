@@ -18,6 +18,8 @@ services:
       - ${FOLDER_FOR_MEDIA:?err}:/data
     ports:
       - "${WEBUI_PORT_QBITTORRENT:?err}:${WEBUI_PORT_QBITTORRENT:?err}"
+      - "${QBIT_TORRENT_PORT:?err}:${QBIT_TORRENT_PORT:?err}"
+      - "${QBIT_TORRENT_PORT:?err}:${QBIT_TORRENT_PORT:?err}/udp"
     # depends_on:
     #   gluetun:
     #     condition: service_healthy
@@ -30,6 +32,7 @@ services:
       - UMASK=${UMASK:?err}
       - TZ=${TIMEZONE:?err}
       - WEBUI_PORT=${WEBUI_PORT_QBITTORRENT:?err}
+      - TORRENTING_PORT=${QBIT_TORRENT_PORT:?err}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:qbittorrent
       - TP_THEME=${TP_THEME:?err}
     labels:
@@ -289,43 +292,6 @@ services:
       - "traefik.http.routers.lidarr-lan.rule=Host(`lidarr.lan`)"
       - "traefik.http.routers.lidarr-lan.entrypoints=web"
       - "traefik.http.services.lidarr-lan.loadbalancer.server.port=8686"
-
-  ###########################################################################
-  ##  Docker Compose File:  Readarr (LinuxServer.io)
-  ##  Function:             Music Library Manager
-  ##  Documentation:        https://docs.linuxserver.io/images/docker-readarr
-  ###########################################################################
-  # region Readarr
-  readarr:
-    image: lscr.io/linuxserver/readarr:develop
-    restart: unless-stopped
-    volumes:
-      - ${FOLDER_FOR_CONFIGS:?err}/readarr:/config
-      - ${FOLDER_FOR_MEDIA:?err}:/data
-    ports:
-      - "${WEBUI_PORT_READARR:?err}:8787"
-    environment:
-      - PUID=${PUID:?err}
-      - PGID=${PGID:?err}
-      - TZ=${TIMEZONE:?err}
-      - DOCKER_MODS=ghcr.io/gilbn/theme.park:readarr
-      - TP_THEME=${TP_THEME:?err}
-    networks:
-      - web
-      - default
-    labels:
-      - "homepage.group=Trackers"
-      - "homepage.name=Readarr"
-      - "homepage.icon=readarr.png"
-      - "homepage.href=http://readarr.lan"
-      - "homepage.description=Audiobook manager"
-      - "homepage.widget.type=readarr"
-      - "homepage.widget.url=http://readarr.lan"
-      - "homepage.widget.key=${READARR_API_KEY}"
-      - "traefik.docker.network=web"
-      - "traefik.http.routers.readarr-lan.rule=Host(`readarr.lan`)"
-      - "traefik.http.routers.readarr-lan.entrypoints=web"
-      - "traefik.http.services.readarr-lan.loadbalancer.server.port=8787"
 
   ###########################################################################
   ##  Docker Compose File:  Prowlarr (LinuxServer.io)
