@@ -23,58 +23,58 @@ services:
       - "homepage.href=https://${PUBLIC_URL_PLATAL_HOMEPAGE}"
       - "homepage.description=Main homelab dashboard"
 
-  vikunja:
-    image: vikunja/vikunja
-    ports:
-      - "${VIKUNJA_PORT}:3456"
-    environment:
-      VIKUNJA_SERVICE_PUBLICURL: https://${PUBLIC_URL_VIKUNJA}
-      VIKUNJA_DATABASE_HOST: vikunja_db
-      VIKUNJA_DATABASE_PASSWORD: ${VIKUNJA_MYSQL_PASSWORD}
-      VIKUNJA_DATABASE_TYPE: mysql
-      VIKUNJA_DATABASE_USER: vikunja
-      VIKUNJA_DATABASE_DATABASE: vikunja
-      VIKUNJA_SERVICE_JWTSECRET: ${VIKUNJA_SERVICE_JWTSECRET}
-    volumes:
-      - .../data/vikunja/files:/app/vikunja/files
-    networks:
-      - web
-      - default
-    depends_on:
-      vikunja_db:
-        condition: service_healthy
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
-      - "traefik.http.routers.vikunja.rule=Host(`${PUBLIC_URL_VIKUNJA}`)"
-      - "traefik.http.routers.vikunja.entrypoints=websecure"
-      - "traefik.http.routers.vikunja.tls.certResolver=myresolver"
-      - "homepage.group=Platal"
-      - "homepage.name=Vikunja"
-      - "homepage.icon=mdi-check"
-      - "homepage.href=https://${PUBLIC_URL_VIKUNJA}"
-      - "homepage.description=Task manager"
-      - "homepage.widget.type=vikunja"
-      - "homepage.widget.url=https://${PUBLIC_URL_VIKUNJA}"
-      - "homepage.widget.key=${VIKUNJA_API_KEY}"
-      - "homepage.widget.enableTaskList=true"
+  # vikunja:
+  #   image: vikunja/vikunja
+  #   ports:
+  #     - "${VIKUNJA_PORT}:3456"
+  #   environment:
+  #     VIKUNJA_SERVICE_PUBLICURL: https://${PUBLIC_URL_VIKUNJA}
+  #     VIKUNJA_DATABASE_HOST: vikunja_db
+  #     VIKUNJA_DATABASE_PASSWORD: ${VIKUNJA_MYSQL_PASSWORD}
+  #     VIKUNJA_DATABASE_TYPE: mysql
+  #     VIKUNJA_DATABASE_USER: vikunja
+  #     VIKUNJA_DATABASE_DATABASE: vikunja
+  #     VIKUNJA_SERVICE_JWTSECRET: ${VIKUNJA_SERVICE_JWTSECRET}
+  #   volumes:
+  #     - .../data/vikunja/files:/app/vikunja/files
+  #   networks:
+  #     - web
+  #     - default
+  #   depends_on:
+  #     vikunja_db:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.docker.network=web"
+  #     - "traefik.http.routers.vikunja.rule=Host(`${PUBLIC_URL_VIKUNJA}`)"
+  #     - "traefik.http.routers.vikunja.entrypoints=websecure"
+  #     - "traefik.http.routers.vikunja.tls.certResolver=myresolver"
+  #     - "homepage.group=Platal"
+  #     - "homepage.name=Vikunja"
+  #     - "homepage.icon=mdi-check"
+  #     - "homepage.href=https://${PUBLIC_URL_VIKUNJA}"
+  #     - "homepage.description=Task manager"
+  #     - "homepage.widget.type=vikunja"
+  #     - "homepage.widget.url=https://${PUBLIC_URL_VIKUNJA}"
+  #     - "homepage.widget.key=${VIKUNJA_API_KEY}"
+  #     - "homepage.widget.enableTaskList=true"
 
-  vikunja_db:
-    image: mariadb:10
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    environment:
-      MYSQL_ROOT_PASSWORD: ${VIKUNJA_MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: vikunja
-      MYSQL_PASSWORD: ${VIKUNJA_MYSQL_PASSWORD}
-      MYSQL_DATABASE: vikunja
-    volumes:
-      - ../data/vikunja/db:/var/lib/mysql
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD" ]
-      interval: 2s
-      start_period: 30s
+  # vikunja_db:
+  #   image: mariadb:10
+  #   command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: ${VIKUNJA_MYSQL_ROOT_PASSWORD}
+  #     MYSQL_USER: vikunja
+  #     MYSQL_PASSWORD: ${VIKUNJA_MYSQL_PASSWORD}
+  #     MYSQL_DATABASE: vikunja
+  #   volumes:
+  #     - ../data/vikunja/db:/var/lib/mysql
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD" ]
+  #     interval: 2s
+  #     start_period: 30s
   # leantime:
   #   image: leantime/leantime:3.2.1
   #   ports:
