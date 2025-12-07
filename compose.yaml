@@ -6,6 +6,7 @@ include:
   - servarr/compose.yaml
   - salon-des-inventions/compose.yaml
   - apps/compose.yaml
+  - knightcrawler/compose.yaml
 
 services:
   traefik:
