@@ -1,0 +1,23 @@
+---
+volumes:
+  dnd-ibot-mongodb:
+
+services:
+  dnd-ibot:
+    build:
+      context: ./telegram-xkcd-ibot
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: ["--comic", "darthsanddroids"]
+    environment:
+      DB_URL: dnd-ibot-db
+      DB_PORT: 27017
+      TELEGRAM_KEY: ${TELEGRAM_DND_IBOT_TOKEN}
+    depends_on:
+      - dnd-ibot-db
+
+  dnd-ibot-db:
+    image: mongo:6.0.27
+    restart: unless-stopped
+    volumes:
+      - dnd-ibot-mongodb:/data/db

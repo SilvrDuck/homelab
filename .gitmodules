@@ -1,3 +1,6 @@
 [submodule "salon-des-inventions"]
 	path = salon-des-inventions
 	url = git@github.com:SilvrDuck/salon-des-inventions.git
+[submodule "bots/telegram-xkcd-ibot"]
+	path = bots/telegram-xkcd-ibot
+	url = https://github.com/SilvrDuck/telegram_XKCD_ibot

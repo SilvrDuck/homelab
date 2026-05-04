@@ -25,6 +25,7 @@ services:
     environment:
       PUID: ${PUID}
       PGID: ${DOCKER_PGID}
+      HOMEPAGE_ALLOWED_HOSTS: "*"
     ports:
       - ${HOMEPAGE_PORT}:3000
     volumes:
@@ -71,3 +72,32 @@ services:
       - "homepage.icon=mdi-network"
       - "homepage.href=http://${HOMELAB_IP}:${UPSNAP_PORT:-8090}"
       - "homepage.description=Wake on line any device"
+
+  mongo-express:
+    image: mongo-express:latest
+    restart: unless-stopped
+    ports:
+      - "${MONGO_EXPRESS_PORT:-8081}:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: dnd-ibot-db
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_BASICAUTH_USERNAME: ${SMB_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${SMB_PASSWORD}
+    networks:
+      - web
+      - default
+    labels:
+      - "homepage.group=Infra"
+      - "homepage.name=Mongo Express"
+      - "homepage.icon=mongodb.png"
+      - "homepage.href=http://${HOMELAB_IP}:${MONGO_EXPRESS_PORT:-8081}"
+      - "homepage.description=MongoDB admin interface"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.mongo-express-lan.rule=Host(`mongo.lan`)"
+      - "traefik.http.routers.mongo-express-lan.entrypoints=web"
+      - "traefik.http.services.mongo-express-lan.loadbalancer.server.port=8081"
+
+networks:
+  web:
+    external: true
