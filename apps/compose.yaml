@@ -26,6 +26,30 @@ services:
       - "traefik.http.routers.filebrowser.tls.certresolver=myresolver"
       - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
 
+  potluck:
+    build: ./potluck
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${DOCKER_PGID}
+      - GEMINI_API_KEY=${POTLUCK_GEMINI_API_KEY}
+    volumes:
+      - ./potluck/data:/app/data
+    networks:
+      - web
+    labels:
+      - "homepage.group=Apps"
+      - "homepage.name=Roulette du Pastis"
+      - "homepage.icon=mdi-glass-cocktail"
+      - "homepage.href=https://pastis-roulette.thvi.ch"
+      - "homepage.description=Potluck matcher with AI"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.potluck.rule=Host(`pastis-roulette.thvi.ch`)"
+      - "traefik.http.routers.potluck.entrypoints=websecure"
+      - "traefik.http.routers.potluck.tls.certresolver=myresolver"
+      - "traefik.http.services.potluck.loadbalancer.server.port=8080"
+
 networks:
   web:
     external: true
