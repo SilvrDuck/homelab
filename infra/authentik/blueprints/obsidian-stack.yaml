@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+# Declarative configuration for the homelab's Authentik instance.
+# Picked up automatically from /blueprints/local/ on container start.
+#
+# What this blueprint does:
+#   1. Creates the `notes-users` group.
+#   2. Tightens the default MFA validation stage to require TOTP only,
+#      with a 7-day MFA re-prompt threshold.
+#   3. Lengthens the default login session to 1 week, remember-me 4 weeks.
+#   4. Creates the Obsidian Proxy provider in forward-auth single-app mode.
+#   5. Creates the Obsidian application bound to the group above.
+#
+# Not declarative (still manual, see infra/authentik/SETUP.md):
+#   - akadmin password (initial-setup flow, runs once on first boot)
+#   - Embedded outpost provider attachment (one click in the UI)
+#   - TOTP enrollment per user (interactive, requires the user's phone)
+
+version: 1
+metadata:
+  name: Homelab - Obsidian + Notes Users
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+    blueprints.goauthentik.io/description: |
+      notes-users group, Obsidian proxy app, TOTP-required auth flow
+      with 1-week sessions.
+
+entries:
+  # --- Group ---
+  - model: authentik_core.group
+    id: group-notes-users
+    identifiers:
+      name: notes-users
+    attrs:
+      is_superuser: false
+
+  # --- Tighten MFA validation: TOTP only, 7-day re-prompt ---
+  - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
+    identifiers:
+      name: default-authentication-mfa-validation
+    attrs:
+      device_classes:
+        - totp
+      not_configured_action: configure
+      configuration_stages:
+        - !Find [authentik_stages_authenticator_totp.authenticatortotpstage, [name, default-authenticator-totp-setup]]
+      last_auth_threshold: days=7
+
+  # --- Lengthen login session ---
+  - model: authentik_stages_user_login.userloginstage
+    identifiers:
+      name: default-authentication-login
+    attrs:
+      session_duration: weeks=1
+      remember_me_offset: weeks=4
+
+  # --- Obsidian proxy provider (forward-auth single-app) ---
+  - model: authentik_providers_proxy.proxyprovider
+    id: provider-obsidian
+    identifiers:
+      name: Obsidian Proxy
+    attrs:
+      authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+      authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+      invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+      mode: forward_single
+      external_host: https://obsidian.thvi.ch
+
+  # --- Obsidian application ---
+  - model: authentik_core.application
+    id: app-obsidian
+    identifiers:
+      slug: obsidian
+    attrs:
+      name: Obsidian
+      provider: !KeyOf provider-obsidian
+      meta_launch_url: https://obsidian.thvi.ch
+      policy_engine_mode: any
+
+  # --- Bind notes-users to the application ---
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !KeyOf app-obsidian
+      group: !KeyOf group-notes-users
+      order: 0
+    attrs:
+      enabled: true
