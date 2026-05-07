@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Idempotent Syncthing configuration via REST API.
 # Run after `docker compose up -d syncthing` to converge the running instance
-# to our desired state: Tailscale-only discovery, no public relays, with the
-# Obsidian vault folder added. Re-runnable; safe to run on every deploy.
+# to our desired state: no global discovery (peers must be added by device ID),
+# public relays enabled as a fallback for off-LAN/off-tailnet peers, vault
+# folder added. Re-runnable; safe to run on every deploy.
 #
 # Usage: ./configure.sh [SYNCTHING_CONFIG_DIR] [SYNCTHING_URL]
 set -euo pipefail
@@ -33,10 +34,10 @@ fi
 
 api() { curl -fsS -H "X-API-Key: $API_KEY" -H "Content-Type: application/json" "$@"; }
 
-echo "==> Disabling global discovery, global relays (Tailscale-only mode)"
+echo "==> Configuring discovery (global off, local on, relays on as fallback)"
 api -X PATCH "$ST_URL/rest/config/options" -d '{
   "globalAnnounceEnabled": false,
-  "relaysEnabled": false,
+  "relaysEnabled": true,
   "natEnabled": false,
   "localAnnounceEnabled": true,
   "urAccepted": -1
