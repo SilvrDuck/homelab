@@ -50,6 +50,72 @@ services:
       - "traefik.http.routers.potluck.tls.certresolver=myresolver"
       - "traefik.http.services.potluck.loadbalancer.server.port=8080"
 
+  obsidian:
+    image: lscr.io/linuxserver/obsidian:latest
+    container_name: obsidian
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - PIXELFLUX_WAYLAND=true
+    volumes:
+      - ${FOLDER_FOR_CONFIGS:?err}/obsidian:/config
+      - ${FOLDER_FOR_MEDIA:?err}/obsidian/vaults:/config/vaults
+    shm_size: "1gb"
+    networks:
+      - web
+    labels:
+      - "homepage.group=Apps"
+      - "homepage.name=Obsidian"
+      - "homepage.icon=mdi-notebook"
+      - "homepage.href=https://${PUBLIC_URL_OBSIDIAN}"
+      - "homepage.description=Notes (browser-streamed desktop app)"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.obsidian.rule=Host(`${PUBLIC_URL_OBSIDIAN}`)"
+      - "traefik.http.routers.obsidian.entrypoints=websecure"
+      - "traefik.http.routers.obsidian.tls.certresolver=myresolver"
+      - "traefik.http.routers.obsidian.middlewares=authentik@file"
+      - "traefik.http.routers.obsidian-outpost.rule=Host(`${PUBLIC_URL_OBSIDIAN}`) && PathPrefix(`/outpost.goauthentik.io/`)"
+      - "traefik.http.routers.obsidian-outpost.entrypoints=websecure"
+      - "traefik.http.routers.obsidian-outpost.tls.certresolver=myresolver"
+      - "traefik.http.routers.obsidian-outpost.service=authentik@docker"
+      - "traefik.http.services.obsidian.loadbalancer.server.port=3001"
+      - "traefik.http.services.obsidian.loadbalancer.server.scheme=https"
+      - "traefik.http.services.obsidian.loadbalancer.serversTransport=obsidian-insecure@file"
+
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: syncthing
+    hostname: homelab-syncthing
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${FOLDER_FOR_CONFIGS:?err}/syncthing:/config
+      - ${FOLDER_FOR_MEDIA:?err}/obsidian/vaults:/sync/obsidian-vault
+    ports:
+      - "22000:22000/tcp"
+      - "22000:22000/udp"
+      - "21027:21027/udp"
+      - "8384:8384"
+    networks:
+      - web
+    labels:
+      - "homepage.group=Apps"
+      - "homepage.name=Syncthing"
+      - "homepage.icon=mdi-folder-sync"
+      - "homepage.href=http://syncthing.lan"
+      - "homepage.description=File sync hub"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.syncthing-lan.rule=Host(`syncthing.lan`)"
+      - "traefik.http.routers.syncthing-lan.entrypoints=web"
+      - "traefik.http.services.syncthing-lan.loadbalancer.server.port=8384"
+
 networks:
   web:
     external: true
