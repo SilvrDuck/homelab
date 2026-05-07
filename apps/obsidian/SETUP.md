@@ -40,9 +40,11 @@ After Syncthing's first start, converge it to our preferences:
 bash apps/syncthing/configure.sh
 ```
 
-This sets `globalAnnounceEnabled=false`, `relaysEnabled=false`, adds the
-`obsidian-vault` folder pointing at `/sync/obsidian-vault` with trashcan
-versioning. Re-runnable.
+This sets `globalAnnounceEnabled=false` (peers must be added by device ID,
+no anonymous discovery), `relaysEnabled=true` (public relays as a fallback
+for off-LAN/off-tailnet peers), `natEnabled=false`, declines usage reports,
+and adds the `obsidian-vault` folder pointing at `/sync/obsidian-vault` with
+trashcan versioning. Re-runnable.
 
 ## Manual: Authentik post-deploy
 
@@ -65,8 +67,17 @@ GUI is at `http://syncthing.lan` (LAN/Tailscale only). On first visit:
    - Accept the auto-share invite for the `obsidian-vault` folder.
    - Set local sync path (e.g. `~/vaults/main` on Mac).
 
-Tailscale is the transport. Port 22000 is published on the LXC interface but
-not router-forwarded; devices must be on the tailnet to sync.
+Connectivity:
+- **Same LAN as homelab** — peers auto-discover via UDP 21027 multicast and
+  connect direct on TCP 22000.
+- **On the tailnet** — peers reach the homelab on its tailnet IP at TCP 22000.
+- **Anywhere else** — falls back through Syncthing's public relay pool. Slower
+  than direct, but secure: traffic is end-to-end TLS, the relay only sees
+  ciphertext between two device IDs. Requires no router port forward.
+
+Port 22000 is published on the LXC interface but not router-forwarded, so
+inbound direct connections from the public internet won't work — relayed
+connections will.
 
 ## Manual: backup setup
 
