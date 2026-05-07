@@ -1,0 +1,13 @@
+[Unit]
+Description=Restic backup of Obsidian vault to Google Drive
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=tibo
+EnvironmentFile=/etc/obsidian-backup.env
+ExecStart=/bin/bash /home/tibo/homelab/apps/obsidian/backup.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
