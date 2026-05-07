@@ -11,3 +11,7 @@ servarr/config/qbit_manage/*
 !servarr/config/qbit_manage/config.yml.sample
 
 apps/filebrowser/database/
+
+infra/authentik/database/
+infra/authentik/redis/
+infra/authentik/media/
