@@ -1,0 +1,26 @@
+#!/bin/sh
+# Keeps MPD playing: restarts playback when it stopped (stream drop, Bluetooth
+# sink not ready yet, network late at boot) or when the stream stalls.
+last=""
+stalled=0
+while sleep 10; do
+  state=$(mpc status '%state%' 2>/dev/null) || continue
+  if [ "$state" != playing ]; then
+    mpc -q play
+    stalled=0
+    last=""
+    continue
+  fi
+  now=$(mpc status '%currenttime%')
+  if [ "$now" = "$last" ]; then
+    stalled=$((stalled + 1))
+    if [ "$stalled" -ge 3 ]; then
+      mpc -q stop
+      mpc -q play
+      stalled=0
+    fi
+  else
+    stalled=0
+  fi
+  last=$now
+done

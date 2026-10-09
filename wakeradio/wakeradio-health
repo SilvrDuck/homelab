@@ -1,0 +1,11 @@
+#!/bin/sh
+# One-line health snapshot for post-mortem diagnosis (journal tag wakeradio-health).
+. /etc/wakeradio.env
+temp=$(vcgencmd measure_temp | cut -d= -f2)
+throttled=$(vcgencmd get_throttled | cut -d= -f2)
+wifi=$(/usr/sbin/iw dev wlan0 link | awk '/Connected to/ {b=$3} /signal:/ {s=$2} END {print (b ? b " " s "dBm" : "down")}')
+xo=$(bluetoothctl info "$XO_MAC" 2>/dev/null | awk '/Connected:/ {print $2}')
+mpd=$(mpc status '%state% %currenttime%' 2>/dev/null || echo down)
+load=$(cut -d' ' -f1 /proc/loadavg)
+mem=$(awk '/MemAvailable/ {print int($2 / 1024) "M"}' /proc/meminfo)
+echo "temp=$temp throttled=$throttled wifi=[$wifi] xo=${xo:-unknown} mpd=[$mpd] load=$load memavail=$mem"

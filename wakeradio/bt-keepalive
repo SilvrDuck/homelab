@@ -1,0 +1,11 @@
+#!/bin/sh
+# Keeps the XO-BCC16 FM transmitter connected over Bluetooth.
+. /etc/wakeradio.env
+while :; do
+  /usr/sbin/rfkill unblock bluetooth
+  if ! bluetoothctl info "$XO_MAC" 2>/dev/null | grep -q 'Connected: yes'; then
+    bluetoothctl power on >/dev/null 2>&1
+    timeout 20 bluetoothctl connect "$XO_MAC" >/dev/null 2>&1
+  fi
+  sleep 5
+done
