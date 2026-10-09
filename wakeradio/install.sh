@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Installs and configures the wake radio Pi. Idempotent; run as root from this directory.
+# Installs and configures the wake radio Pi. Idempotent; run as root with WAKERADIO_XO_MAC set.
 set -euo pipefail
 cd "$(dirname "$0")"
-XO_MAC=41:42:CC:40:1E:6E
+XO_MAC=${WAKERADIO_XO_MAC:?WAKERADIO_XO_MAC is not set, see .env.dist}
 DEFAULT_STREAM=http://stream.srg-ssr.ch/m/couleur3/mp3_128
 
 # myMPD apt repository (key fingerprint from https://jcorporation.github.io/myMPD/)

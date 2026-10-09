@@ -7,20 +7,24 @@ light (FM-only tuner) can wake to stations that left FM, such as Couleur 3.
 myMPD (phone) → MPD → bluez-alsa → Bluetooth A2DP → XO-BCC16 FM transmitter → HF3531
 ```
 
-- Pi: `192.168.1.111` (fixed IP in Unifi), hostname `wakeradio`, user `tibo`, SSH key only.
-- Web UI: https://192.168.1.111:8443 (myMPD, self-signed certificate).
-- XO-BCC16: Bluetooth `41:42:CC:40:1E:6E`, powered from the charger's USB-A port.
+- Pi: `$WAKERADIO_HOST` (fixed IP in Unifi), hostname `wakeradio`, user `$WAKERADIO_USER`, SSH key only.
+- Web UI: `https://$WAKERADIO_HOST:8443` (myMPD, self-signed certificate).
+- XO-BCC16: Bluetooth `$WAKERADIO_XO_MAC`, powered from the charger's USB-A port.
+
+The `WAKERADIO_*` values live in the root `.env` (see `.env.dist`).
 
 ## Fresh install
 
 1. Flash Raspberry Pi OS Lite 64-bit with a cloud-init `user-data` (hostname, user,
    SSH key) and `network-config` (Wi-Fi, `regulatory-domain: CH`) on the boot partition.
 2. Pair the XO once (it is discoverable while not connected):
-   `bluetoothctl` → `scan on` → `pair 41:42:CC:40:1E:6E` → `trust …` → `connect …`.
+   `bluetoothctl` → `scan on` → `pair $WAKERADIO_XO_MAC` → `trust …` → `connect …`.
    Bluetooth boots soft-blocked by rfkill; `rfkill unblock bluetooth` first.
-3. Deploy:
+3. Deploy from the repo root:
    ```
-   rsync -a wakeradio/ tibo@192.168.1.111:wakeradio/ && ssh tibo@192.168.1.111 sudo wakeradio/install.sh
+   set -a && . <(grep '^WAKERADIO_' .env) && set +a
+   rsync -a wakeradio/ "$WAKERADIO_USER@$WAKERADIO_HOST:wakeradio/"
+   ssh "$WAKERADIO_USER@$WAKERADIO_HOST" sudo WAKERADIO_XO_MAC="$WAKERADIO_XO_MAC" wakeradio/install.sh
    ```
 
 ## How it recovers on its own
