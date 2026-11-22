@@ -8,7 +8,7 @@ infra/homepage/config/*
 !infra/homepage/config/widgets.yaml
 
 servarr/config/qbit_manage/*
-!servarr/config/qbit_manage/config.yml.sample
+!servarr/config/qbit_manage/config.yml
 
 apps/filebrowser/database/
 

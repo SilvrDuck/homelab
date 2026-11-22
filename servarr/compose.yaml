@@ -66,16 +66,17 @@ services:
     container_name: qbit_manage
     image: ghcr.io/stuffanthings/qbit_manage:latest
     networks:
-      - web
+      - default
     volumes:
       - ./config/qbit_manage/:/config:rw
       - ${FOLDER_FOR_MEDIA:?err}:/data:rw
-      - ${FOLDER_FOR_CONFIGS:?err}/qbittorrent/:/qbittorrent/:ro
     environment:
-      - QBT_DRY_RUN=true
-      - QBT_RUN=360 # minutes
-      - QBT_REM_ORPHANED=true
+      - QBIT_USER=${QBITTORRENT_USER:?err}
+      - QBIT_PASS=${QBITTORRENT_PASS:?err}
+      - QBT_SCHEDULE=60 # minutes; fallback for the Radarr/Sonarr delete hook
+      - QBT_WEB_SERVER=true
       - QBT_TAG_NOHARDLINKS=true
+      - QBT_SHARE_LIMITS=true
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
@@ -341,6 +342,7 @@ services:
     volumes:
       - ${FOLDER_FOR_CONFIGS:?err}/radarr:/config
       - ${FOLDER_FOR_MEDIA:?err}:/data
+      - ./hooks:/hooks:ro
     ports:
       - "${WEBUI_PORT_RADARR:?err}:7878"
     environment:
@@ -384,6 +386,7 @@ services:
     volumes:
       - ${FOLDER_FOR_CONFIGS:?err}/sonarr:/config
       - ${FOLDER_FOR_MEDIA:?err}:/data
+      - ./hooks:/hooks:ro
     ports:
       - "${WEBUI_PORT_SONARR:?err}:8989"
     environment:
