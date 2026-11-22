@@ -46,6 +46,8 @@ Deleting a movie/show in Jellyseerr ("Remove from Radarr/Sonarr"), Radarr or Son
 
 `infra/backup/` holds a daily restic → Google Drive backup of `/mnt/apps` (every service's config and database) and the Obsidian vault, run by a systemd timer on the host. Setup and restore steps: `infra/backup/README.md`.
 
+**TODO:** the backup is not installed on the host yet (no restic repo, timer not enabled). Run the setup in `infra/backup/README.md`.
+
 ### Salon-des-inventions (Python/AI project, git submodule)
 
 ```bash
