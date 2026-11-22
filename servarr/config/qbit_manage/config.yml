@@ -1,10 +1,7 @@
-# qbit_manage: removes a movie/show torrent and its download as soon as its
-# library copy is gone (deleted in Jellyseerr/Radarr/Sonarr, or replaced by an
-# upgrade). Only the *-imported categories are touched; Radarr/Sonarr move a
-# torrent there after a successful import, so downloads that are still being
-# imported, or failed to import, are never candidates.
-#
-# Everything else in qBittorrent (seeding limits, other categories) is left alone.
+# qbit_manage: removes a movie/show torrent and its download once its library
+# copy is gone (deleted in Jellyseerr/Radarr/Sonarr, or replaced by an
+# upgrade). Only the movies and shows categories are touched; everything else
+# in qBittorrent (seeding limits, other categories) is left alone.
 # qbit_manage writes missing defaults back into this file, so every key it
 # expects is listed explicitly.
 # Docs: https://github.com/StuffAnThings/qbit_manage/wiki/Config-Setup
@@ -45,18 +42,16 @@ directory:
 # Mandatory mapping of every qBittorrent category to its save path.
 cat:
   movies: /data/downloads/torrents/movies
-  movies-imported: /data/downloads/torrents/movies
   shows: /data/downloads/torrents/shows
-  shows-imported: /data/downloads/torrents/shows
   anonamouse: /data/downloads/torrents/anonamouse
   audiobook: /data/downloads/torrents/audiobook
   desktop: /data/downloads/torrents/desktop
   prowlarr: /data/downloads/torrents/prowlarr
 
 nohardlinks:
-  movies-imported:
+  movies:
     ignore_root_dir: true
-  shows-imported:
+  shows:
     ignore_root_dir: true
 
 share_limits:
@@ -65,8 +60,8 @@ share_limits:
     include_all_tags:
     - noHL
     categories:
-    - movies-imported
-    - shows-imported
+    - movies
+    - shows
     # A ratio of 0 is always reached, so matching torrents are removed on the
     # same run they are tagged.
     max_ratio: 0

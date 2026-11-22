@@ -73,8 +73,7 @@ services:
     environment:
       - QBIT_USER=${QBITTORRENT_USER:?err}
       - QBIT_PASS=${QBITTORRENT_PASS:?err}
-      - QBT_SCHEDULE=60 # minutes; fallback for the Radarr/Sonarr delete hook
-      - QBT_WEB_SERVER=true
+      - QBT_SCHEDULE=5 # minutes
       - QBT_TAG_NOHARDLINKS=true
       - QBT_SHARE_LIMITS=true
     restart: unless-stopped
@@ -342,7 +341,6 @@ services:
     volumes:
       - ${FOLDER_FOR_CONFIGS:?err}/radarr:/config
       - ${FOLDER_FOR_MEDIA:?err}:/data
-      - ./hooks:/hooks:ro
     ports:
       - "${WEBUI_PORT_RADARR:?err}:7878"
     environment:
@@ -386,7 +384,6 @@ services:
     volumes:
       - ${FOLDER_FOR_CONFIGS:?err}/sonarr:/config
       - ${FOLDER_FOR_MEDIA:?err}:/data
-      - ./hooks:/hooks:ro
     ports:
       - "${WEBUI_PORT_SONARR:?err}:8989"
     environment:

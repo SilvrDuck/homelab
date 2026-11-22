@@ -32,13 +32,11 @@ docker compose restart <service>
 # Generate Ubiquiti USG static host mappings for all services
 python3 scripts/generate_usg_mappings.py
 
-# Configure qBittorrent/Radarr/Sonarr for delete-driven torrent cleanup (re-runnable, stack must be up)
-./scripts/setup_media_cleanup.sh
 ```
 
 ### Media deletion
 
-Deleting a movie/show in Jellyseerr ("Remove from Radarr/Sonarr"), Radarr or Sonarr deletes the library file; a Connect hook (`servarr/hooks/qbit-manage-cleanup.sh`) then has qbit_manage remove the matching torrent and its download data, with no seeding requirement. qbit_manage only acts on the `movies-imported` / `shows-imported` qBittorrent categories, which Radarr/Sonarr assign after a successful import (`servarr/config/qbit_manage/config.yml`). qbit_manage's web API (port 8181) has no auth and sits on the servarr `default` network, which qBittorrent already trusts without a password.
+Deleting a movie/show in Jellyseerr ("Remove from Radarr/Sonarr"), Radarr or Sonarr deletes the library file. qbit_manage runs every 5 minutes and removes torrents in the `movies` and `shows` categories that no longer have a hardlink in the library, together with their download data, with no seeding requirement (`servarr/config/qbit_manage/config.yml`). It sits on the servarr `default` network, which qBittorrent trusts without a password.
 
 ### Salon-des-inventions (Python/AI project, git submodule)
 
