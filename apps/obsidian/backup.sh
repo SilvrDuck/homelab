@@ -34,3 +34,7 @@ restic forget \
   --keep-monthly 12 \
   --keep-yearly 5 \
   --prune
+
+# Read-back a slice each run so bit-rot / partial uploads / pack-file damage
+# get caught before they bite a restore. 5% per day → whole repo every ~3 weeks.
+restic check --read-data-subset=5%

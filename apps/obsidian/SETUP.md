@@ -61,8 +61,10 @@ GUI is at `http://syncthing.lan` (LAN/Tailscale only). On first visit:
 
 1. Set a GUI username/password under **Actions → Settings → GUI**.
 2. The homelab's device ID is shown at the top of the page.
-3. On each peer (Mac / Linux / Android with Möbius Sync):
-   - Install Syncthing.
+3. On each peer:
+   - Mac / Linux: install Syncthing (Homebrew / pacman / package manager).
+   - iOS: Möbius Sync (paid, App Store).
+   - Android: Syncthing-Fork (free, Play Store / F-Droid).
    - Add the homelab's device ID as a remote device.
    - Accept the auto-share invite for the `obsidian-vault` folder.
    - Set local sync path (e.g. `~/vaults/main` on Mac).
