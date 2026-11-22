@@ -1,0 +1,212 @@
+# Configarr: Radarr/Sonarr settings as code, applied on every `docker compose up`.
+# Only the keys below are managed; everything else stays as set in the UI.
+# Docs: https://configarr.de/docs/configuration/config-file/
+
+radarr:
+  radarr:
+    base_url: http://radarr:7878
+    api_key: !env RADARR_API_KEY
+
+    root_folders:
+      - /data/cinema/movies
+
+    download_clients:
+      update_password: false
+      data:
+        - name: qBittorrent
+          type: qbittorrent
+          enable: true
+          priority: 1
+          remove_completed_downloads: true
+          remove_failed_downloads: true
+          fields:
+            host: qbittorrent
+            port: 8200
+            use_ssl: false
+            username: !env QBITTORRENT_USER
+            password: !env QBITTORRENT_PASS
+            movie_category: movies
+            recent_movie_priority: 0
+            older_movie_priority: 0
+            initial_state: 0
+            sequential_order: true
+            first_and_last: true
+            content_layout: 0
+
+    media_naming_api:
+      renameMovies: true
+      replaceIllegalCharacters: true
+      colonReplacementFormat: smart
+      movieFolderFormat: "{Movie CleanTitle} ({Release Year}) [imdbid-{ImdbId}]"
+      standardMovieFormat: "{Movie CleanTitle} {(Release Year)} [imdbid-{ImdbId}] - {Edition Tags }{[Custom Formats]}{[Quality Full]}{[MediaInfo 3D]}{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[Mediainfo VideoCodec]}{-Release Group}"
+
+    quality_profiles:
+      - name: HD - 720p/1080p
+        language: English
+        upgrade:
+          allowed: false
+          until_quality: Bluray-720p
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Raw-HD
+            enabled: false
+          - name: BR-DISK
+            enabled: false
+          - name: Remux-2160p
+            enabled: false
+          - name: Bluray-2160p
+            enabled: false
+          - name: WEB 2160p
+            id: 1003
+            enabled: false
+            qualities:
+              - WEBRip-2160p
+              - WEBDL-2160p
+          - name: HDTV-2160p
+            enabled: false
+          - name: Remux-1080p
+            enabled: false
+          - name: Bluray-1080p
+          - name: WEB 1080p
+            id: 1002
+            qualities:
+              - WEBRip-1080p
+              - WEBDL-1080p
+          - name: HDTV-1080p
+          - name: Bluray-720p
+          - name: WEB 720p
+            id: 1001
+            qualities:
+              - WEBRip-720p
+              - WEBDL-720p
+          - name: HDTV-720p
+          - name: Bluray-576p
+            enabled: false
+          - name: Bluray-480p
+            enabled: false
+          - name: WEB 480p
+            id: 1000
+            enabled: false
+            qualities:
+              - WEBRip-480p
+              - WEBDL-480p
+          - name: DVD-R
+            enabled: false
+          - name: DVD
+            enabled: false
+          - name: SDTV
+            enabled: false
+          - name: DVDSCR
+            enabled: false
+          - name: REGIONAL
+            enabled: false
+          - name: TELECINE
+            enabled: false
+          - name: TELESYNC
+            enabled: false
+          - name: CAM
+            enabled: false
+          - name: WORKPRINT
+            enabled: false
+          - name: Unknown
+            enabled: false
+
+sonarr:
+  sonarr:
+    base_url: http://sonarr:8989
+    api_key: !env SONARR_API_KEY
+
+    root_folders:
+      - /data/cinema/shows
+
+    download_clients:
+      update_password: false
+      data:
+        - name: qBittorrent
+          type: qbittorrent
+          enable: true
+          priority: 1
+          remove_completed_downloads: true
+          remove_failed_downloads: true
+          fields:
+            host: qbittorrent
+            port: 8200
+            use_ssl: false
+            username: !env QBITTORRENT_USER
+            password: !env QBITTORRENT_PASS
+            tv_category: shows
+            recent_tv_priority: 0
+            older_tv_priority: 0
+            initial_state: 0
+            sequential_order: true
+            first_and_last: true
+            content_layout: 0
+
+    media_naming_api:
+      renameEpisodes: true
+      replaceIllegalCharacters: true
+      colonReplacementFormat: 4
+      customColonReplacementFormat: ""
+      multiEpisodeStyle: 5
+      seriesFolderFormat: "{Series TitleYear} [tvdbid-{TvdbId}]"
+      seasonFolderFormat: "Season {season:00}"
+      specialsFolderFormat: Specials
+      standardEpisodeFormat: "{Series TitleYear} - S{season:00}E{episode:00} - {Episode CleanTitle} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[MediaInfo VideoCodec]}{-Release Group}"
+      dailyEpisodeFormat: "{Series TitleYear} - {Air-Date} - {Episode CleanTitle} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[MediaInfo VideoCodec]}{-Release Group}"
+      animeEpisodeFormat: "{Series TitleYear} - S{season:00}E{episode:00} - {absolute:000} - {Episode CleanTitle} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}[{Mediainfo AudioCodec} { Mediainfo AudioChannels}]{MediaInfo AudioLanguages}{-Release Group}"
+
+    quality_profiles:
+      - name: HD - 720p/1080p
+        upgrade:
+          allowed: false
+          until_quality: HDTV-720p
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Bluray-2160p Remux
+            enabled: false
+          - name: Bluray-2160p
+            enabled: false
+          - name: WEB 2160p
+            id: 1003
+            enabled: false
+            qualities:
+              - WEBDL-2160p
+              - WEBRip-2160p
+          - name: HDTV-2160p
+            enabled: false
+          - name: Bluray-1080p Remux
+            enabled: false
+          - name: Bluray-1080p
+          - name: WEB 1080p
+            id: 1002
+            qualities:
+              - WEBDL-1080p
+              - WEBRip-1080p
+          - name: Bluray-720p
+          - name: WEB 720p
+            id: 1001
+            qualities:
+              - WEBDL-720p
+              - WEBRip-720p
+          - name: Raw-HD
+            enabled: false
+          - name: HDTV-1080p
+          - name: HDTV-720p
+          - name: Bluray-576p
+            enabled: false
+          - name: Bluray-480p
+            enabled: false
+          - name: DVD
+            enabled: false
+          - name: WEB 480p
+            id: 1000
+            enabled: false
+            qualities:
+              - WEBDL-480p
+              - WEBRip-480p
+          - name: SDTV
+            enabled: false
+          - name: Unknown
+            enabled: false

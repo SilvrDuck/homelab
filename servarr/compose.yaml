@@ -56,27 +56,66 @@ services:
       # - "traefik.http.routers.qbittorrent-public.tls.certresolver=myresolver"
       # - "traefik.http.routers.qbittorrent-public.service=qbittorrent-lan"
 
-      ###########################################################################
-      ##  Docker Compose File:  qBittorrent Manage (stuffnthings)
-      ##  Function:             qBittorrent Automation, esp. deleting torrents after
-      ##                        being removed from Sonarr/Radarr
-      ##  Documentation:        https://github.com/StuffAnThings/qbit_manage/wiki
-      ###########################################################################
-  qbit_manage:
-    container_name: qbit_manage
-    image: ghcr.io/stuffanthings/qbit_manage:latest
+  ###########################################################################
+  ##  Docker Compose File:  Cleanuparr
+  ##  Function:             Removes movie/show torrents and their download data
+  ##                        once the library copy is deleted (no hardlinks left)
+  ##  Documentation:        https://cleanuparr.github.io/Cleanuparr/
+  ###########################################################################
+  # region Cleanuparr
+  cleanuparr:
+    image: ghcr.io/cleanuparr/cleanuparr:latest
+    container_name: cleanuparr
+    restart: unless-stopped
+    volumes:
+      - ${FOLDER_FOR_CONFIGS:?err}/cleanuparr:/config
+      - ${FOLDER_FOR_MEDIA:?err}:/data
+    environment:
+      - PUID=${PUID:?err}
+      - PGID=${PGID:?err}
+      - UMASK=${UMASK:?err}
+      - TZ=${TIMEZONE:?err}
+    networks:
+      - web
+      - default
+    labels:
+      - "homepage.group=Automation"
+      - "homepage.name=Cleanuparr"
+      - "homepage.icon=cleanuparr.png"
+      - "homepage.href=http://cleanuparr.lan"
+      - "homepage.description=Torrent cleanup"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.cleanuparr-lan.rule=Host(`cleanuparr.lan`)"
+      - "traefik.http.routers.cleanuparr-lan.entrypoints=web"
+      - "traefik.http.services.cleanuparr-lan.loadbalancer.server.port=11011"
+
+  ###########################################################################
+  ##  Docker Compose File:  Configarr
+  ##  Function:             Applies configarr/config.yml to Radarr and Sonarr,
+  ##                        once per `docker compose up`
+  ##  Documentation:        https://configarr.de/docs/intro
+  ###########################################################################
+  # region Configarr
+  configarr:
+    image: ghcr.io/raydak-labs/configarr:latest
+    container_name: configarr
+    restart: "no"
+    user: "${PUID:?err}:${PGID:?err}"
+    depends_on:
+      - radarr
+      - sonarr
+    volumes:
+      - ./configarr:/app/config:ro
+      - ${FOLDER_FOR_CONFIGS:?err}/configarr:/app/repos
+    environment:
+      - TZ=${TIMEZONE:?err}
+      - RADARR_API_KEY=${RADARR_API_KEY:?err}
+      - SONARR_API_KEY=${SONARR_API_KEY:?err}
+      - QBITTORRENT_USER=${QBITTORRENT_USER:?err}
+      - QBITTORRENT_PASS=${QBITTORRENT_PASS:?err}
     networks:
       - default
-    volumes:
-      - ./config/qbit_manage/:/config:rw
-      - ${FOLDER_FOR_MEDIA:?err}:/data:rw
-    environment:
-      - QBIT_USER=${QBITTORRENT_USER:?err}
-      - QBIT_PASS=${QBITTORRENT_PASS:?err}
-      - QBT_SCHEDULE=5 # minutes
-      - QBT_TAG_NOHARDLINKS=true
-      - QBT_SHARE_LIMITS=true
-    restart: unless-stopped
     labels:
       - "traefik.enable=false"
 

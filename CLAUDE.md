@@ -36,7 +36,15 @@ python3 scripts/generate_usg_mappings.py
 
 ### Media deletion
 
-Deleting a movie/show in Jellyseerr ("Remove from Radarr/Sonarr"), Radarr or Sonarr deletes the library file. qbit_manage runs every 5 minutes and removes torrents in the `movies` and `shows` categories that no longer have a hardlink in the library, together with their download data, with no seeding requirement (`servarr/config/qbit_manage/config.yml`). It sits on the servarr `default` network, which qBittorrent trusts without a password.
+Deleting a movie/show in Jellyseerr ("Remove from Radarr/Sonarr"), Radarr or Sonarr deletes the library file. Cleanuparr (`http://cleanuparr.lan`, login in `.env`) runs every 5 minutes: torrents in the `movies` and `shows` categories with no hardlink left in the library get the `cleanuparr-unlinked` tag, and a seeding rule deletes tagged torrents with their data, with no seeding requirement. Downloads still in a Radarr/Sonarr queue (not yet imported, or failed imports) are skipped. Its settings live in `/mnt/apps/cleanuparr` and are configured in its UI.
+
+### Radarr/Sonarr config as code
+
+`servarr/configarr/config.yml` declares the Radarr/Sonarr root folders, qBittorrent download client, naming formats and the `HD - 720p/1080p` quality profile. Configarr applies it once per `docker compose up` (the `configarr` container then exits). Preview changes with `docker compose run --rm -e DRY_RUN=true configarr`. Everything not in the file is configured in the UIs.
+
+### Backups
+
+`infra/backup/` holds a daily restic → Google Drive backup of `/mnt/apps` (every service's config and database) and the Obsidian vault, run by a systemd timer on the host. Setup and restore steps: `infra/backup/README.md`.
 
 ### Salon-des-inventions (Python/AI project, git submodule)
 
@@ -56,9 +64,10 @@ Built via Docker (no host Go toolchain required); reads `POTLUCK_GEMINI_API_KEY`
 
 ```
 compose.yaml              # Root compose - defines Traefik + the `web` network, includes all subdirs
-├── infra/                # Homepage dashboard, Samba, UpSnap (WoL), Mongo Express
+├── infra/                # Homepage dashboard, Samba, UpSnap (WoL), Mongo Express, backup
 ├── servarr/              # Media stack: qBittorrent, SABnzbd, Bazarr, Jellyfin, Jellyseerr,
-│                         #   Sonarr, Radarr, Lidarr, Prowlarr, Flaresolverr, Unpackerr, qbit_manage
+│                         #   Sonarr, Radarr, Lidarr, Prowlarr, Flaresolverr, Unpackerr, Cleanuparr,
+│                         #   Configarr
 ├── platal/               # Project management (mostly disabled/commented out)
 ├── apps/                 # File Browser, Potluck/Roulette du Pastis (Go + Gemini)
 ├── bots/                 # Telegram bots (e.g. telegram-xkcd-ibot, MongoDB-backed)
