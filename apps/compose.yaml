@@ -116,6 +116,77 @@ services:
       - "traefik.http.routers.syncthing-lan.entrypoints=web"
       - "traefik.http.services.syncthing-lan.loadbalancer.server.port=8384"
 
+  cobalt-api:
+    image: ghcr.io/imputnet/cobalt:11
+    container_name: cobalt-api
+    init: true
+    read_only: true
+    restart: unless-stopped
+    environment:
+      - API_URL=https://api.cobalt.thvi.ch/
+      - CORS_URL=https://cobalt.thvi.ch
+      - CORS_WILDCARD=0
+      - API_AUTH_REQUIRED=1
+      - TURNSTILE_SITEKEY=${COBALT_TURNSTILE_SITEKEY}
+      - TURNSTILE_SECRET=${COBALT_TURNSTILE_SECRET}
+      - JWT_SECRET=${COBALT_JWT_SECRET}
+      - YOUTUBE_SESSION_SERVER=http://bgutil-provider:4416/
+      # YouTube no longer serves media to the default IOS client from this host,
+      # while ANDROID_VR still works. It is not cipher-free, so it depends on
+      # the session server above to make the player available for deciphering.
+      - CUSTOM_INNERTUBE_CLIENT=ANDROID_VR
+    depends_on:
+      - bgutil-provider
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.cobalt-api.rule=Host(`api.cobalt.thvi.ch`)"
+      - "traefik.http.routers.cobalt-api.entrypoints=websecure"
+      - "traefik.http.routers.cobalt-api.tls.certresolver=myresolver"
+      - "traefik.http.services.cobalt-api.loadbalancer.server.port=9000"
+
+  cobalt-web:
+    build:
+      context: ./cobalt
+      network: host
+      args:
+        COBALT_REF: main
+        WEB_HOST: cobalt.thvi.ch
+        WEB_DEFAULT_API: https://api.cobalt.thvi.ch/
+    container_name: cobalt-web
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      - "homepage.group=Apps"
+      - "homepage.name=Cobalt"
+      - "homepage.icon=mdi-download-circle"
+      - "homepage.href=https://cobalt.thvi.ch"
+      - "homepage.description=Media & social downloader"
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.cobalt.rule=Host(`cobalt.thvi.ch`)"
+      - "traefik.http.routers.cobalt.entrypoints=websecure"
+      - "traefik.http.routers.cobalt.tls.certresolver=myresolver"
+      - "traefik.http.services.cobalt.loadbalancer.server.port=3000"
+
+  # Supplies cobalt with a poToken and visitor_data so Innertube retrieves the
+  # YouTube player and can decipher the stream throttling parameter. cobalt POSTs
+  # to /get_pot, which is this provider's API — imputnet's own yt-session-generator
+  # only serves /token and is not compatible. The token is bound to the public IP
+  # it was minted on, so this has to run here rather than point at a remote host.
+  bgutil-provider:
+    image: brainicism/bgutil-ytdlp-pot-provider:latest
+    container_name: bgutil-provider
+    init: true
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      - "traefik.enable=false"
+
 networks:
   web:
     external: true
