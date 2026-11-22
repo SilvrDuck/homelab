@@ -1,12 +1,12 @@
 [Unit]
-Description=Daily Obsidian backup
-Requires=obsidian-backup.service
+Description=Daily homelab backup
+Requires=homelab-backup.service
 
 [Timer]
 OnCalendar=*-*-* 03:30:00
 RandomizedDelaySec=15m
 Persistent=true
-Unit=obsidian-backup.service
+Unit=homelab-backup.service
 
 [Install]
 WantedBy=timers.target

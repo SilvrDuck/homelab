@@ -1,6 +1,6 @@
 # Obsidian stack setup runbook
 
-Full runbook for the Obsidian + Syncthing + restic-backup stack. Most of the
+Full runbook for the Obsidian + Syncthing stack. Most of the
 configuration is declarative (compose files, the Authentik blueprint, the
 Syncthing API helper, systemd units). Manual steps are flagged.
 
@@ -10,7 +10,7 @@ Syncthing API helper, systemd units). Manual steps are flagged.
 |---|---|---|---|
 | Obsidian (LinuxServer container) | `apps/compose.yaml` | `obsidian.thvi.ch` | Authentik forward-auth |
 | Syncthing | `apps/compose.yaml` | `syncthing.lan` | Built-in user/pass (LAN-only) |
-| restic backup → Google Drive | `apps/obsidian/backup.{sh,service,timer}` | — | rclone OAuth |
+| restic backup → Google Drive | `infra/backup/` | — | rclone OAuth |
 
 Vault data: `/mnt/media/obsidian/vaults/` (matches the qBittorrent media share pattern).
 Obsidian app config: `/mnt/apps/obsidian/` (matches `/mnt/apps/qbittorrent/`).
@@ -81,56 +81,10 @@ Port 22000 is published on the LXC interface but not router-forwarded, so
 inbound direct connections from the public internet won't work — relayed
 connections will.
 
-## Manual: backup setup
+## Backup
 
-One-time installer (run as a user with sudo):
-
-```bash
-sudo ./scripts/setup_obsidian_backup.sh
-```
-
-That installs `restic` and `rclone` via apt, drops the systemd unit + timer
-into `/etc/systemd/system/`, and seeds `/etc/obsidian-backup.env` from the
-template. It then prints the remaining manual steps:
-
-1. **rclone config** (as user `tibo`, interactive — opens a browser for Google Drive OAuth):
-   ```bash
-   rclone config
-   # n)ew remote, name: gdrive, storage: drive, scope: drive, leave the rest default
-   # auto-config: y on a desktop, n if running over SSH (paste auth URL into a local browser)
-   ```
-2. **Edit `/etc/obsidian-backup.env`** with sudo:
-   - Set `RESTIC_PASSWORD` to a fresh value (`openssl rand -base64 32`). Save it in a password manager too — losing it means the backups are unrecoverable.
-   - Adjust `RESTIC_REPOSITORY` if you used a remote name other than `gdrive`.
-3. **Initialise the restic repo** (one-time):
-   ```bash
-   sudo systemd-run --wait --pipe --uid=tibo --gid=tibo \
-     --property=EnvironmentFile=/etc/obsidian-backup.env \
-     /usr/bin/restic init
-   ```
-4. **Test a backup**:
-   ```bash
-   sudo systemctl start obsidian-backup.service
-   sudo journalctl -u obsidian-backup.service -f
-   ```
-5. **Enable the daily timer**:
-   ```bash
-   sudo systemctl enable --now obsidian-backup.timer
-   sudo systemctl list-timers obsidian-backup.timer
-   ```
-
-### Verify a restore (this is the only test that matters)
-
-```bash
-sudo systemd-run --wait --pipe --uid=tibo --gid=tibo \
-  --property=EnvironmentFile=/etc/obsidian-backup.env \
-  /usr/bin/restic snapshots
-# pick a snapshot ID, then:
-sudo systemd-run --wait --pipe --uid=tibo --gid=tibo \
-  --property=EnvironmentFile=/etc/obsidian-backup.env \
-  /usr/bin/restic restore <snapshot-id> --target /tmp/restore-test
-diff -r /mnt/media/obsidian/vaults /tmp/restore-test/mnt/media/obsidian/vaults
-```
+The vault and the Obsidian config are part of the homelab-wide restic backup;
+see `infra/backup/README.md` for setup and restores.
 
 ## Concurrency note
 
@@ -156,12 +110,7 @@ sync:
 
 ```
 apps/compose.yaml                              # obsidian + syncthing services
-apps/obsidian/backup.sh                        # restic backup script
-apps/obsidian/backup.service                   # systemd unit
-apps/obsidian/backup.timer                     # daily 03:30 timer
-apps/obsidian/backup.env.dist                  # template for /etc/obsidian-backup.env
 apps/syncthing/configure.sh                    # one-shot REST API converger
 config/traefik/dynamic/authentik.yml           # forward-auth middleware (shared with other Authentik-protected apps)
 infra/authentik/blueprints/obsidian-stack.yaml # Authentik IaC: group + provider + app + flow tweaks
-scripts/setup_obsidian_backup.sh               # sudo installer for restic/rclone/systemd
 ```
