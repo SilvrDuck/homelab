@@ -60,13 +60,19 @@ apt-get install -y --allow-downgrades \
 # 7. Hold containerd.io so it doesn’t get upgraded back to 2.x
 apt-mark hold containerd.io
 
-echo "[setup_docker] Configuring Docker daemon DNS"
+echo "[setup_docker] Configuring Docker daemon DNS and log rotation"
 
-# 8. Configure Docker DNS (idempotent overwrite)
+# 8. Configure Docker DNS and cap container logs (idempotent overwrite).
+#    Without a cap, the json-file driver grows a container's log forever on the root disk.
 mkdir -p /etc/docker
 cat >/etc/docker/daemon.json <<'EOF'
 {
-  "dns": ["1.1.1.1", "8.8.8.8"]
+  "dns": ["1.1.1.1", "8.8.8.8"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
 }
 EOF
 

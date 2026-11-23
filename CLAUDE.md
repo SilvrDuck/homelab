@@ -85,7 +85,7 @@ Traefik itself lives in the root `compose.yaml`, not `infra/` — the included s
 
 **Docker Compose modular includes**: Each service family has independent `compose.yaml` files aggregated by root.
 
-**Traefik routing**: Services use labels for routing configuration:
+**Traefik routing**: Services use labels for routing configuration. The Docker provider has `exposedByDefault: false`, so a service is only routed when it sets `traefik.enable=true`:
 - `traefik.http.routers.<name>.rule=Host(...)` for routing
 - `traefik.http.routers.<name>.tls.certresolver=myresolver` for ACME certs
 - DNS challenge via Infomaniak for SSL certificates
