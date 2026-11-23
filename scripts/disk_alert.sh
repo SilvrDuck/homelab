@@ -13,7 +13,7 @@ STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/homelab-disk-alert"
 MOUNTS=(/ /mnt/media /mnt/apps)
 
 env_value() {
-  grep -E "^$1=" "$REPO_DIR/.env" | tail -1 | cut -d= -f2- | sed -E 's/[[:space:]]+#.*$//; s/^"(.*)"$/\1/; s/[[:space:]]+$//'
+  { grep -E "^$1=" "$REPO_DIR/.env" || true; } | tail -1 | cut -d= -f2- | sed -E 's/[[:space:]]+#.*$//; s/^"(.*)"$/\1/; s/[[:space:]]+$//'
 }
 
 TOKEN="$(env_value DISK_ALERT_TELEGRAM_TOKEN)"
