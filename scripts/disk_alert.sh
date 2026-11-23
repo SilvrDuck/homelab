@@ -27,7 +27,8 @@ if [[ -z "$TOKEN" || -z "$CHAT_ID" ]]; then
 fi
 
 send() {
-  curl -fsS -m 20 "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+  # The URL goes in via stdin config so the bot token never shows up in `ps`.
+  curl -fsS -m 20 -K - <<<"url = \"https://api.telegram.org/bot${TOKEN}/sendMessage\"" \
     --data-urlencode "chat_id=${CHAT_ID}" \
     --data-urlencode "text=$1" >/dev/null
 }
