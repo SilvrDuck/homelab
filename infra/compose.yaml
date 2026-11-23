@@ -12,7 +12,7 @@ services:
     ports:
       - "139:139"
       - "445:445"
-    command: [ "-s", "media;/mount;yes;no;no;all;none", "-p" ]
+    command: [ "-s", "media;/mount;yes;no;no;all;none", "-p", "-r" ]
     labels:
       - "homepage.group=Media"
       - "homepage.name=Samba"
