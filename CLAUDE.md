@@ -112,5 +112,7 @@ Copy `.env.dist` to `.env` and fill in values. Key sections:
 ## Important Notes
 
 - Containerd is pinned to `1.7.28-1~ubuntu.22.04~jammy` and held with `apt-mark` for Proxmox LXC compatibility (newer 2.x fails on `net.ipv4.ip_unprivileged_port_start` inside unprivileged LXCs); see `scripts/setup_docker.sh`. The same script also forces `DOCKER_MIN_API_VERSION=1.24` via systemd override so Traefik's docker provider works.
+- `scripts/setup_docker.sh` writes `/etc/docker/daemon.json`, which caps every container's log at 3 × 10 MB. Uncapped json-file logs live on the root disk and can fill it. Containers only pick up the cap when they are recreated after Docker restarts.
+- `scripts/disk_alert.sh` (cron, every 15 min, installed by `scripts/setup_disk_alert.sh`) sends a Telegram DM when `/`, `/mnt/media` or `/mnt/apps` crosses `DISK_ALERT_THRESHOLD`, and again when it recovers. `/mnt/media` and `/mnt/apps` share the `chest` ZFS pool, so a full media disk also stops every service's database.
 - Traefik ACME certificates stored in `data/traefik/acme/acme.json`
 - Servarr stack follows [trash-guides.info](https://trash-guides.info) best practices
