@@ -1,0 +1,18 @@
+# Default gitleaks rules plus the secret shapes this repo's alerting handles.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "telegram-bot-token"
+description = "Telegram bot token, bare or inside an api.telegram.org URL"
+regex = '''[0-9]{8,10}:AA[A-Za-z0-9_-]{30,40}'''
+
+[[rules]]
+id = "uptime-kuma-push-token"
+description = "Uptime Kuma push URL token"
+regex = '''/api/push/[A-Za-z0-9_-]{6,}'''
+
+[[rules]]
+id = "telegram-chat-id"
+description = "Telegram chat ID assignment"
+regex = '''CHAT_ID\s*=\s*["']?-?[0-9]{5,}'''
