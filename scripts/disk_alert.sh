@@ -6,6 +6,8 @@
 #   DISK_ALERT_TELEGRAM_TOKEN    bot token from @BotFather
 #   DISK_ALERT_TELEGRAM_CHAT_ID  your chat ID with that bot
 #   DISK_ALERT_THRESHOLD         percent, default 90
+#   DISK_ALERT_KUMA_PUSH_URL     optional Uptime Kuma push URL, pinged on every run
+#                                so a dead cron job shows up as a down monitor
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -20,6 +22,7 @@ TOKEN="$(env_value DISK_ALERT_TELEGRAM_TOKEN)"
 CHAT_ID="$(env_value DISK_ALERT_TELEGRAM_CHAT_ID)"
 THRESHOLD="$(env_value DISK_ALERT_THRESHOLD)"
 THRESHOLD="${THRESHOLD:-90}"
+PUSH_URL="$(env_value DISK_ALERT_KUMA_PUSH_URL)"
 
 if [[ -z "$TOKEN" || -z "$CHAT_ID" ]]; then
   echo "disk_alert: DISK_ALERT_TELEGRAM_TOKEN or DISK_ALERT_TELEGRAM_CHAT_ID missing in .env" >&2
@@ -47,3 +50,8 @@ for mount in "${MOUNTS[@]}"; do
     send "✅ $(hostname): $mount is back to ${used}% (${avail} free)." && rm -f "$state_file"
   fi
 done
+
+if [[ -n "$PUSH_URL" ]]; then
+  # Via stdin config, like send(), so the push token stays out of `ps`.
+  curl -fsS -m 10 -K - <<<"url = \"${PUSH_URL}\"" >/dev/null || true
+fi

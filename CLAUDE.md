@@ -42,6 +42,16 @@ Deleting a movie/show in Jellyseerr ("Remove from Radarr/Sonarr"), Radarr or Son
 
 `servarr/configarr/config.yml` declares the Radarr/Sonarr root folders, qBittorrent download client, naming formats and the `HD - 720p/1080p` quality profile. Configarr applies it once per `docker compose up` (the `configarr` container then exits). Preview changes with `docker compose run --rm -e DRY_RUN=true configarr`. Everything not in the file is configured in the UIs.
 
+### Alerting
+
+Every alert is a Telegram DM from one bot (token and chat ID in `.env` as `DISK_ALERT_TELEGRAM_*`):
+
+- Uptime Kuma (`http://uptime.lan`, `infra/compose.yaml`) checks every Traefik route through `http://traefik` with the route's `Host` header (`.lan` names don't resolve inside containers), every container without a route, and a heartbeat that `scripts/disk_alert.sh` pushes on each run. Monitors and the Telegram notification are configured in its UI; new monitors get the notification by default.
+- Radarr, Sonarr, Lidarr and Prowlarr send health errors through their own Telegram connection; Jellyseerr sends failed media and new issues.
+- `scripts/disk_alert.sh` (see Important Notes) keeps working when Docker is down.
+
+Only `sendMessage` may be used on that token: another process long-polls its updates, so never call `getUpdates` or `setWebhook` with it, and never use Kuma's Telegram "Auto Get" button.
+
 ### Backups
 
 `infra/backup/` holds a daily restic → Google Drive backup of `/mnt/apps` (every service's config and database) and the Obsidian vault, run by a systemd timer on the host. Setup and restore steps: `infra/backup/README.md`.
@@ -66,7 +76,7 @@ Built via Docker (no host Go toolchain required); reads `POTLUCK_GEMINI_API_KEY`
 
 ```
 compose.yaml              # Root compose - defines Traefik + the `web` network, includes all subdirs
-├── infra/                # Homepage dashboard, Samba, UpSnap (WoL), Mongo Express, backup
+├── infra/                # Homepage dashboard, Uptime Kuma, Samba, UpSnap (WoL), Mongo Express, backup
 ├── servarr/              # Media stack: qBittorrent, SABnzbd, Bazarr, Jellyfin, Jellyseerr,
 │                         #   Sonarr, Radarr, Lidarr, Prowlarr, Flaresolverr, Unpackerr, Cleanuparr,
 │                         #   Configarr
@@ -113,6 +123,6 @@ Copy `.env.dist` to `.env` and fill in values. Key sections:
 
 - Containerd is pinned to `1.7.28-1~ubuntu.22.04~jammy` and held with `apt-mark` for Proxmox LXC compatibility (newer 2.x fails on `net.ipv4.ip_unprivileged_port_start` inside unprivileged LXCs); see `scripts/setup_docker.sh`. The same script also forces `DOCKER_MIN_API_VERSION=1.24` via systemd override so Traefik's docker provider works.
 - `scripts/setup_docker.sh` writes `/etc/docker/daemon.json`, which caps every container's log at 3 × 10 MB. Uncapped json-file logs live on the root disk and can fill it. Containers only pick up the cap when they are recreated after Docker restarts.
-- `scripts/disk_alert.sh` (cron, every 15 min, installed by `scripts/setup_disk_alert.sh`) sends a Telegram DM when `/`, `/mnt/media` or `/mnt/apps` crosses `DISK_ALERT_THRESHOLD`, and again when it recovers. `/mnt/media` and `/mnt/apps` share the `chest` ZFS pool, so a full media disk also stops every service's database.
+- `scripts/disk_alert.sh` (cron, every 15 min, installed by `scripts/setup_disk_alert.sh`) sends a Telegram DM when `/`, `/mnt/media` or `/mnt/apps` crosses `DISK_ALERT_THRESHOLD`, and again when it recovers. Each run also pings `DISK_ALERT_KUMA_PUSH_URL`, so Uptime Kuma reports a dead cron job. `/mnt/media` and `/mnt/apps` share the `chest` ZFS pool, so a full media disk also stops every service's database.
 - Traefik ACME certificates stored in `data/traefik/acme/acme.json`
 - Servarr stack follows [trash-guides.info](https://trash-guides.info) best practices
