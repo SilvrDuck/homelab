@@ -46,7 +46,7 @@ Deleting a movie/show in Jellyseerr ("Remove from Radarr/Sonarr"), Radarr or Son
 
 Every alert is a Telegram DM from one bot (token and chat ID in `.env` as `DISK_ALERT_TELEGRAM_*`):
 
-- Uptime Kuma (`http://uptime.lan`, `infra/compose.yaml`) checks every Traefik route through `http://traefik` with the route's `Host` header (`.lan` names don't resolve inside containers), every container without a route, and a heartbeat that `scripts/disk_alert.sh` pushes on each run. Monitors and the Telegram notification are configured in its UI; new monitors get the notification by default.
+- Uptime Kuma (`http://uptime.lan`, `infra/compose.yaml`) checks every `.lan` route through `http://traefik` with the route's `Host` header (`.lan` names don't resolve inside containers), every public route at `https://<host>` (including certificate expiry), every container without a route, and a heartbeat that `scripts/disk_alert.sh` pushes on each run. Monitors and the Telegram notification are configured in its UI; new monitors get the notification by default.
 - Radarr, Sonarr, Lidarr and Prowlarr send health errors through their own Telegram connection; Jellyseerr sends failed media and new issues.
 - `scripts/disk_alert.sh` (see Important Notes) keeps working when Docker is down.
 
@@ -100,7 +100,7 @@ Traefik itself lives in the root `compose.yaml`, not `infra/` — the included s
 - `traefik.http.routers.<name>.tls.certresolver=myresolver` for ACME certs
 - DNS challenge via Infomaniak for SSL certificates
 
-**Dual routing**: Services support both internal (`.lan`) and public (`.thvi.ch`) domains.
+**Dual routing**: Services support both internal (`.lan`) and public (`.thvi.ch`) domains. Every `.lan` router sets `traefik.http.routers.<name>.middlewares=lan-only@file` (`config/traefik/dynamic/lan_only.yml`): port 80 is forwarded from the internet, so without it a spoofed `Host` header reaches the service from outside.
 
 **Homepage dashboard integration**: Services use `homepage.*` labels for dashboard widgets.
 
