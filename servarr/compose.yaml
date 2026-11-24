@@ -556,7 +556,6 @@ services:
       - UN_LIDARR_0_DELETE_DELAY=5m
     security_opt:
       - no-new-privileges:true
-    network_mode: none
     labels:
       - "homepage.group=Automation"
       - "homepage.name=Unpackerr"
