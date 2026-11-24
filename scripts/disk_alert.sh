@@ -45,7 +45,8 @@ for mount in "${MOUNTS[@]}"; do
   [[ -f "$state_file" ]] && was_full=true
 
   if (( used >= THRESHOLD )) && ! $was_full; then
-    send "⚠️ $(hostname): $mount is ${used}% full (${avail} free)." && touch "$state_file"
+    # A full root disk can make touch fail; that must not abort the run before the heartbeat.
+    send "⚠️ $(hostname): $mount is ${used}% full (${avail} free)." && { touch "$state_file" || true; }
   elif (( used < THRESHOLD )) && $was_full; then
     send "✅ $(hostname): $mount is back to ${used}% (${avail} free)." && rm -f "$state_file"
   fi
