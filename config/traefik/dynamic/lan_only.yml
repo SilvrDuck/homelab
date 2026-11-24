@@ -1,0 +1,16 @@
+# The router forwards port 80 from the internet for the *.ch -> https redirect, so
+# every router on the `web` entrypoint is reachable from outside by spoofing the
+# Host header. *.lan routers attach this middleware to answer private sources only:
+# LAN, Docker networks (e.g. Uptime Kuma checks through Traefik), Tailscale.
+http:
+  middlewares:
+    lan-only:
+      ipAllowList:
+        sourceRange:
+          - "127.0.0.1/32"
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+          - "192.168.0.0/16"
+          - "100.64.0.0/10"
+          - "::1/128"
+          - "fc00::/7"

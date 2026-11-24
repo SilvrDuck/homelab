@@ -49,6 +49,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.qbittorrent-lan.rule=Host(`qbittorrent.lan`)"
+      - "traefik.http.routers.qbittorrent-lan.middlewares=lan-only@file"
       - "traefik.http.routers.qbittorrent-lan.entrypoints=web"
       - "traefik.http.services.qbittorrent-lan.loadbalancer.server.port=${WEBUI_PORT_QBITTORRENT}"
       # - "traefik.http.routers.qbittorrent-public.rule=Host(`${PUBLIC_URL_QBITTORRENT}`)"
@@ -87,6 +88,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.cleanuparr-lan.rule=Host(`cleanuparr.lan`)"
+      - "traefik.http.routers.cleanuparr-lan.middlewares=lan-only@file"
       - "traefik.http.routers.cleanuparr-lan.entrypoints=web"
       - "traefik.http.services.cleanuparr-lan.loadbalancer.server.port=11011"
 
@@ -155,6 +157,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.sabnzbd-lan.rule=Host(`sabnzbd.lan`)"
+      - "traefik.http.routers.sabnzbd-lan.middlewares=lan-only@file"
       - "traefik.http.routers.sabnzbd-lan.entrypoints=web"
       - "traefik.http.services.sabnzbd-lan.loadbalancer.server.port=8080"
 
@@ -193,6 +196,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.bazarr-lan.rule=Host(`bazarr.lan`)"
+      - "traefik.http.routers.bazarr-lan.middlewares=lan-only@file"
       - "traefik.http.routers.bazarr-lan.entrypoints=web"
       - "traefik.http.services.bazarr-lan.loadbalancer.server.port=6767"
 
@@ -236,6 +240,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.jellyfin-lan.rule=Host(`jellyfin.lan`)"
+      - "traefik.http.routers.jellyfin-lan.middlewares=lan-only@file"
       - "traefik.http.routers.jellyfin-lan.entrypoints=web"
       - "traefik.http.routers.jellyfin-public.rule=Host(`${PUBLIC_URL_JELLYFIN}`)"
       - "traefik.http.routers.jellyfin-public.entrypoints=websecure"
@@ -281,6 +286,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.jellyseerr-lan.rule=Host(`jellyseerr.lan`)"
+      - "traefik.http.routers.jellyseerr-lan.middlewares=lan-only@file"
       - "traefik.http.routers.jellyseerr-lan.entrypoints=web"
       - "traefik.http.routers.jellyseerr-public.rule=Host(`${PUBLIC_URL_JELLYSEERR}`)"
       - "traefik.http.routers.jellyseerr-public.entrypoints=websecure"
@@ -331,6 +337,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.lidarr-lan.rule=Host(`lidarr.lan`)"
+      - "traefik.http.routers.lidarr-lan.middlewares=lan-only@file"
       - "traefik.http.routers.lidarr-lan.entrypoints=web"
       - "traefik.http.services.lidarr-lan.loadbalancer.server.port=8686"
 
@@ -367,6 +374,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.prowlarr-lan.rule=Host(`prowlarr.lan`)"
+      - "traefik.http.routers.prowlarr-lan.middlewares=lan-only@file"
       - "traefik.http.routers.prowlarr-lan.entrypoints=web"
       - "traefik.http.services.prowlarr-lan.loadbalancer.server.port=9696"
 
@@ -397,6 +405,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.radarr-lan.rule=Host(`radarr.lan`)"
+      - "traefik.http.routers.radarr-lan.middlewares=lan-only@file"
       - "traefik.http.routers.radarr-lan.entrypoints=web"
       - "traefik.http.routers.radarr-public.rule=Host(`${PUBLIC_URL_RADARR}`)"
       - "traefik.http.routers.radarr-public.entrypoints=websecure"
@@ -440,6 +449,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.sonarr-lan.rule=Host(`sonarr.lan`)"
+      - "traefik.http.routers.sonarr-lan.middlewares=lan-only@file"
       - "traefik.http.routers.sonarr-lan.entrypoints=web"
       - "traefik.http.routers.sonarr-public.rule=Host(`${PUBLIC_URL_SONARR}`)"
       - "traefik.http.routers.sonarr-public.entrypoints=websecure"
@@ -484,6 +494,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.flaresolverr-lan.rule=Host(`flaresolverr.lan`)"
+      - "traefik.http.routers.flaresolverr-lan.middlewares=lan-only@file"
       - "traefik.http.routers.flaresolverr-lan.entrypoints=web"
       - "traefik.http.services.flaresolverr-lan.loadbalancer.server.port=8191"
 

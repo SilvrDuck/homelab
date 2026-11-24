@@ -45,6 +45,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.homepage-lan.rule=Host(`homepage.lan`)"
+      - "traefik.http.routers.homepage-lan.middlewares=lan-only@file"
       - "traefik.http.routers.homepage-lan.entrypoints=web"
       - "traefik.http.services.homepage-lan.loadbalancer.server.port=3000"
 
@@ -72,6 +73,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.uptime-kuma-lan.rule=Host(`uptime.lan`)"
+      - "traefik.http.routers.uptime-kuma-lan.middlewares=lan-only@file"
       - "traefik.http.routers.uptime-kuma-lan.entrypoints=web"
       - "traefik.http.services.uptime-kuma-lan.loadbalancer.server.port=3001"
 
@@ -122,6 +124,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.mongo-express-lan.rule=Host(`mongo.lan`)"
+      - "traefik.http.routers.mongo-express-lan.middlewares=lan-only@file"
       - "traefik.http.routers.mongo-express-lan.entrypoints=web"
       - "traefik.http.services.mongo-express-lan.loadbalancer.server.port=8081"
 

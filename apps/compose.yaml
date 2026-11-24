@@ -113,6 +113,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.syncthing-lan.rule=Host(`syncthing.lan`)"
+      - "traefik.http.routers.syncthing-lan.middlewares=lan-only@file"
       - "traefik.http.routers.syncthing-lan.entrypoints=web"
       - "traefik.http.services.syncthing-lan.loadbalancer.server.port=8384"
 
