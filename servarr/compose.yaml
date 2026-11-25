@@ -314,12 +314,15 @@ services:
     volumes:
       - ${FOLDER_FOR_CONFIGS:?err}/lidarr:/config
       - ${FOLDER_FOR_MEDIA:?err}:/data
+      - ./notify:/scripts:ro
     ports:
       - "${WEBUI_PORT_LIDARR:?err}:8686"
     environment:
       - PUID=${PUID:?err}
       - PGID=${PGID:?err}
       - TZ=${TIMEZONE:?err}
+      - TELEGRAM_BOT_TOKEN=${DISK_ALERT_TELEGRAM_TOKEN}
+      - TELEGRAM_CHAT_ID=${DISK_ALERT_TELEGRAM_CHAT_ID}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:lidarr
       - TP_THEME=${TP_THEME:?err}
     networks:
@@ -390,12 +393,15 @@ services:
     volumes:
       - ${FOLDER_FOR_CONFIGS:?err}/radarr:/config
       - ${FOLDER_FOR_MEDIA:?err}:/data
+      - ./notify:/scripts:ro
     ports:
       - "${WEBUI_PORT_RADARR:?err}:7878"
     environment:
       - PUID=${PUID:?err}
       - PGID=${PGID:?err}
       - TZ=${TIMEZONE:?err}
+      - TELEGRAM_BOT_TOKEN=${DISK_ALERT_TELEGRAM_TOKEN}
+      - TELEGRAM_CHAT_ID=${DISK_ALERT_TELEGRAM_CHAT_ID}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:radarr
       - TP_THEME=${TP_THEME:?err}
     networks:
@@ -434,12 +440,15 @@ services:
     volumes:
       - ${FOLDER_FOR_CONFIGS:?err}/sonarr:/config
       - ${FOLDER_FOR_MEDIA:?err}:/data
+      - ./notify:/scripts:ro
     ports:
       - "${WEBUI_PORT_SONARR:?err}:8989"
     environment:
       - PUID=${PUID:?err}
       - PGID=${PGID:?err}
       - TZ=${TIMEZONE:?err}
+      - TELEGRAM_BOT_TOKEN=${DISK_ALERT_TELEGRAM_TOKEN}
+      - TELEGRAM_CHAT_ID=${DISK_ALERT_TELEGRAM_CHAT_ID}
       - DOCKER_MODS=ghcr.io/gilbn/theme.park:sonarr
       - TP_THEME=${TP_THEME:?err}
     networks:

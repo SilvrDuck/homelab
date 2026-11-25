@@ -48,6 +48,7 @@ Every alert is a Telegram DM from one bot (token and chat ID in `.env` as `DISK_
 
 - Uptime Kuma (`http://uptime.lan`, `infra/compose.yaml`) checks every `.lan` route through `http://traefik` with the route's `Host` header (`.lan` names don't resolve inside containers), every public route at `https://<host>` (including certificate expiry), every container without a route, and a heartbeat that `scripts/disk_alert.sh` pushes on each run. Monitors and the Telegram notification are configured in its UI; new monitors get the notification by default.
 - Radarr, Sonarr, Lidarr and Prowlarr send health errors through their own Telegram connection; Jellyseerr sends failed media and new issues.
+- Radarr, Sonarr and Lidarr send grabs, downloads and upgrades through a Custom Script connection running `servarr/notify/telegram.sh` (the built-in Telegram connection has fixed titles).
 - `scripts/disk_alert.sh` (see Important Notes) keeps working when Docker is down.
 
 Only `sendMessage` may be used on that token: another process long-polls its updates, so never call `getUpdates` or `setWebhook` with it, and never use Kuma's Telegram "Auto Get" button.
